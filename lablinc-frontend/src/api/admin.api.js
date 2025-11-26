@@ -34,6 +34,11 @@ export const adminAPI = {
     return response.data;
   },
 
+  updateBookingStatus: async (bookingId, status) => {
+    const response = await apiClient.patch(`/admin/bookings/${bookingId}`, { status });
+    return response.data;
+  },
+
   // Analytics
   getAnalytics: async () => {
     const response = await apiClient.get('/admin/analytics');
@@ -59,6 +64,14 @@ export const adminAPI = {
 
   updateContactMessage: async (messageId, data) => {
     const response = await apiClient.patch(`/admin/contacts/${messageId}`, data);
+    return response.data;
+  },
+
+  // Download invoice
+  downloadInvoice: async (bookingId) => {
+    const response = await apiClient.get(`/admin/bookings/${bookingId}/invoice`, {
+      responseType: 'blob',
+    });
     return response.data;
   },
 };

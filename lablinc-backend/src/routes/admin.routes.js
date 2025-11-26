@@ -54,6 +54,7 @@ router.patch('/instruments/:id/feature', toggleInstrumentFeature);
 // Booking management
 router.get('/bookings', getBookings);
 router.patch('/bookings/:id', updateBookingValidation, validate, updateBooking);
+router.get('/bookings/:id/invoice', require('../controllers/bookings.controller').downloadInvoice);
 
 // Analytics
 router.get('/analytics', getAnalytics);

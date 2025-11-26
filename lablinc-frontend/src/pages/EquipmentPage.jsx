@@ -71,12 +71,16 @@ const EquipmentPage = () => {
           <p>Browse and book research instruments from leading institutes</p>
         </div>
 
-        <EquipmentFilters
-          filters={filters}
-          onFilterChange={setFilters}
-          onSearch={handleSearch}
-        />
+        <div className="equipment-container">
+          <aside className="equipment-sidebar">
+            <EquipmentFilters
+              filters={filters}
+              onFilterChange={setFilters}
+              onSearch={handleSearch}
+            />
+          </aside>
 
+          <main className="equipment-main">
         {loading && (
           <div className="loading-state">
             <div className="spinner"></div>
@@ -145,6 +149,8 @@ const EquipmentPage = () => {
             )}
           </>
         )}
+          </main>
+        </div>
       </div>
     </MainLayout>
   );

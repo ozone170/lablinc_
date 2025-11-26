@@ -160,3 +160,44 @@
     right: -1rem;
   }
 }
+
+@media (max-width: 768px) {
+  .notification-bell {
+    position: relative;
+  }
+
+  .notification-dropdown {
+    position: fixed;
+    top: auto;
+    right: 0.5rem;
+    left: 0.5rem;
+    width: auto;
+    max-width: none;
+    max-height: 70vh;
+  }
+
+  .notification-header h3 {
+    font-size: 1rem;
+  }
+
+  .notification-item {
+    padding: 0.875rem;
+  }
+
+  .notification-title {
+    font-size: 0.9rem;
+  }
+
+  .notification-message {
+    font-size: 0.8rem;
+  }
+
+  .notification-time {
+    font-size: 0.75rem;
+  }
+
+  .notification-actions button {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8rem;
+  }
+}

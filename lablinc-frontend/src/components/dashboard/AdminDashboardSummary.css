@@ -2,45 +2,222 @@
   padding: 2rem 0;
 }
 
+.dashboard-header {
+  margin-bottom: 2.5rem;
+  text-align: center;
+}
+
+.dashboard-header h2 {
+  font-size: 2.5rem;
+  color: #1a1a2e;
+  margin: 0 0 0.5rem 0;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dashboard-header p {
+  font-size: 1.1rem;
+  color: #6b7280;
+  margin: 0;
+}
+
 .admin-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
 }
 
 .admin-card {
   background: white;
-  padding: 2rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 2.5rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   text-decoration: none;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.3s ease;
+  border: 1px solid #f0f0f0;
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.admin-card:hover::before {
+  transform: scaleX(1);
 }
 
 .admin-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-8px);
+  box-shadow: 0 12px 32px rgba(102, 126, 234, 0.2);
+  border-color: #667eea;
 }
 
 .card-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
+  font-size: 3.5rem;
+  margin-bottom: 1.25rem;
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.admin-card:hover .card-icon {
+  transform: scale(1.1) rotate(5deg);
 }
 
 .admin-card h3 {
-  color: #1f2937;
-  margin-bottom: 0.5rem;
+  color: #1a1a2e;
+  margin-bottom: 0.75rem;
+  font-size: 1.3rem;
+  font-weight: 700;
 }
 
 .admin-card p {
   color: #6b7280;
-  font-size: 0.875rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
 }
 
 .admin-cta {
   text-align: center;
-  padding: 2rem;
-  background: #f3f4f6;
-  border-radius: 0.5rem;
+  padding: 3rem 2rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 16px;
+  border: 2px dashed #dee2e6;
+}
+
+.admin-cta .btn {
+  padding: 1rem 2.5rem;
+  font-size: 1.1rem;
+  border-radius: 12px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.admin-cta .btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+}
+
+@media (max-width: 768px) {
+  .admin-dashboard-summary {
+    padding: 1rem 0;
+  }
+
+  .admin-cards {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .admin-card {
+    padding: 1.5rem;
+  }
+
+  .card-icon {
+    font-size: 2.5rem;
+  }
+
+  .admin-card h3 {
+    font-size: 1.1rem;
+  }
+
+  .admin-card p {
+    font-size: 0.8rem;
+  }
+
+  .admin-cta {
+    padding: 1.5rem;
+  }
+
+  .admin-cta h2 {
+    font-size: 1.3rem;
+  }
+
+  .admin-cta p {
+    font-size: 0.9rem;
+  }
+}
+
+/* Card animations */
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.admin-card {
+  animation: cardFadeIn 0.5s ease;
+}
+
+.admin-card:nth-child(1) { animation-delay: 0.1s; }
+.admin-card:nth-child(2) { animation-delay: 0.15s; }
+.admin-card:nth-child(3) { animation-delay: 0.2s; }
+.admin-card:nth-child(4) { animation-delay: 0.25s; }
+.admin-card:nth-child(5) { animation-delay: 0.3s; }
+.admin-card:nth-child(6) { animation-delay: 0.35s; }
+
+/* Responsive improvements */
+@media (max-width: 1024px) {
+  .admin-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .admin-cards {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .admin-card {
+    padding: 2rem;
+  }
+  
+  .card-icon {
+    font-size: 3rem;
+  }
+  
+  .admin-card h3 {
+    font-size: 1.2rem;
+  }
+}
+
+/* CTA button enhancement */
+.admin-cta .btn-large {
+  padding: 1rem 2.5rem;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 640px) {
+  .admin-cta {
+    padding: 2rem 1.5rem;
+  }
+  
+  .admin-cta .btn {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1rem;
+  }
 }

@@ -248,3 +248,58 @@
     flex-direction: column;
   }
 }
+
+@media (max-width: 768px) {
+  .instrument-details-page {
+    padding: 1rem;
+  }
+
+  .instrument-container {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 1rem;
+  }
+
+  .instrument-gallery {
+    height: 250px;
+  }
+
+  .instrument-info {
+    padding: 1.25rem;
+  }
+
+  .instrument-info h1 {
+    font-size: 1.5rem;
+  }
+
+  .instrument-category,
+  .instrument-institute {
+    font-size: 0.9rem;
+  }
+
+  .instrument-price {
+    font-size: 1.3rem;
+  }
+
+  .info-section h2 {
+    font-size: 1.2rem;
+  }
+
+  .info-section p,
+  .info-section ul {
+    font-size: 0.9rem;
+  }
+
+  .booking-section {
+    padding: 1.25rem;
+  }
+
+  .booking-section h2 {
+    font-size: 1.2rem;
+  }
+
+  .btn-book {
+    width: 100%;
+    padding: 1rem;
+  }
+}

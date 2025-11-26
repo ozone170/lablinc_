@@ -96,7 +96,7 @@ const HomePage = () => {
     <MainLayout>
       <section className="hero">
         <div className="heroContent">
-          <h1 style={{ textAlign: 'center' }}>Bridging Academia & Industry Through Smart Equipment Sharing</h1>
+          <h2 style={{ textAlign: 'center' }}>Bridging Academia & Industry Through Smart Equipment Sharing</h2>
           <p style={{ textAlign: 'center' }}>Make idle college equipment accessible to startups, MSMEs, and innovators — with real-time booking, expert support, and secure payments.</p>
           <div className="heroButtons">
             <Link to="/equipment" className="btnPrimary">Explore Equipment</Link>

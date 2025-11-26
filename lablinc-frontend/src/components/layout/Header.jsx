@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import LoginModal from '../auth/LoginModal';
 import RegisterModal from '../auth/RegisterModal';
@@ -8,46 +8,127 @@ import './Header.css';
 
 const Header = () => {
   const { isAuthenticated, user, logout } = useAuth();
+  const location = useLocation();
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = async () => {
     await logout();
+    setMobileMenuOpen(false);
   };
 
   const openLogin = () => {
     setShowRegisterModal(false);
     setShowLoginModal(true);
+    setMobileMenuOpen(false);
   };
 
   const openRegister = () => {
     setShowLoginModal(false);
     setShowRegisterModal(true);
+    setMobileMenuOpen(false);
+  };
+
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
   };
 
   return (
     <>
       <header className="header">
         <div className="header-container">
-          <Link to="/" className="logo">
+          <Link to="/" className="logo" onClick={closeMobileMenu}>
             <img src="/logo.png" alt="LabLinc Logo" className="logo-image" />
             <span className="logo-text">LabLinc</span>
           </Link>
 
-          <nav className="nav">
-            <Link to="/" className="nav-link">Home</Link>
-            <Link to="/equipment" className="nav-link">Equipment</Link>
-            <Link to="/about" className="nav-link">About</Link>
-            <Link to="/partner" className="nav-link">Partner</Link>
-            <Link to="/contact" className="nav-link">Contact</Link>
+          <button 
+            className="mobile-menu-button"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            <span className="hamburger"></span>
+            <span className="hamburger"></span>
+            <span className="hamburger"></span>
+          </button>
+
+          <nav className={`nav ${mobileMenuOpen ? 'nav-open' : ''}`}>
+            <Link 
+              to="/" 
+              className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}
+              onClick={closeMobileMenu}
+            >
+              Home
+            </Link>
+            <Link 
+              to="/equipment" 
+              className={`nav-link ${location.pathname.startsWith('/equipment') ? 'active' : ''}`}
+              onClick={closeMobileMenu}
+            >
+              Equipment
+            </Link>
+            <Link 
+              to="/about" 
+              className={`nav-link ${location.pathname === '/about' ? 'active' : ''}`}
+              onClick={closeMobileMenu}
+            >
+              About
+            </Link>
+            <Link 
+              to="/partner" 
+              className={`nav-link ${location.pathname === '/partner' ? 'active' : ''}`}
+              onClick={closeMobileMenu}
+            >
+              Partner
+            </Link>
+            <Link 
+              to="/contact" 
+              className={`nav-link ${location.pathname === '/contact' ? 'active' : ''}`}
+              onClick={closeMobileMenu}
+            >
+              Contact
+            </Link>
             
             {isAuthenticated && (
               <>
-                <Link to="/dashboard" className="nav-link">Dashboard</Link>
+                <Link 
+                  to="/dashboard" 
+                  className={`nav-link ${location.pathname === '/dashboard' ? 'active' : ''}`}
+                  onClick={closeMobileMenu}
+                >
+                  Dashboard
+                </Link>
                 {user?.role === 'admin' && (
-                  <Link to="/admin" className="nav-link">Admin</Link>
+                  <Link 
+                    to="/admin" 
+                    className={`nav-link ${location.pathname === '/admin' ? 'active' : ''}`}
+                    onClick={closeMobileMenu}
+                  >
+                    Admin
+                  </Link>
                 )}
               </>
+            )}
+
+            {isAuthenticated && (
+              <div className="mobile-user-section">
+                <span className="mobile-user-name">{user?.name} ({user?.role})</span>
+                <button onClick={handleLogout} className="btn btn-secondary mobile-logout">
+                  Logout
+                </button>
+              </div>
+            )}
+
+            {!isAuthenticated && (
+              <div className="mobile-auth-buttons">
+                <button onClick={openLogin} className="btn btn-secondary">
+                  Login
+                </button>
+                <button onClick={openRegister} className="btn btn-primary">
+                  Register
+                </button>
+              </div>
             )}
           </nav>
 

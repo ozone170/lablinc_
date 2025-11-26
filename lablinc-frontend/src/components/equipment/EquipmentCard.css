@@ -17,7 +17,7 @@
 .equipment-image {
   position: relative;
   width: 100%;
-  height: 180px;
+  height: 160px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   overflow: hidden;
 }
@@ -39,7 +39,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 4rem;
+  font-size: 3rem;
   color: white;
 }
 
@@ -74,44 +74,52 @@
 }
 
 .equipment-content {
-  padding: 1.5rem;
+  padding: 1.25rem;
   display: flex;
   flex-direction: column;
   flex: 1;
 }
 
 .equipment-category {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #666;
   margin-bottom: 0.25rem;
 }
 
 .equipment-name {
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: #1a1a2e;
   margin-bottom: 0.5rem;
   font-weight: 600;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .equipment-description {
   color: #666;
-  font-size: 0.875rem;
-  line-height: 1.5;
-  margin-bottom: 1rem;
-  flex: 1;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  margin-bottom: 0.75rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .equipment-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
-  padding-top: 1rem;
+  margin-bottom: 0.75rem;
+  padding-top: 0.75rem;
   border-top: 1px solid #e5e7eb;
 }
 
 .equipment-owner {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: #888;
 }
 
@@ -120,11 +128,40 @@
 }
 
 .equipment-price {
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 700;
   color: #4ecca3;
 }
 
 .equipment-btn {
   width: 100%;
+  padding: 0.625rem 1rem;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .equipment-card {
+    max-width: 100%;
+  }
+
+  .equipment-card-image {
+    height: 200px;
+  }
+
+  .equipment-card-content {
+    padding: 1.25rem;
+  }
+
+  .equipment-card-title {
+    font-size: 1.1rem;
+  }
+
+  .equipment-card-category,
+  .equipment-card-institute {
+    font-size: 0.85rem;
+  }
+
+  .equipment-card-price {
+    font-size: 1rem;
+  }
 }

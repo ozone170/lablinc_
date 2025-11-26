@@ -79,3 +79,28 @@
 .form-footer button:hover {
   text-decoration: underline;
 }
+
+@media (max-width: 768px) {
+  .auth-form {
+    gap: 0.875rem;
+  }
+
+  .form-group label {
+    font-size: 0.8rem;
+  }
+
+  .form-group input,
+  .form-group select {
+    padding: 0.625rem;
+    font-size: 0.95rem;
+  }
+
+  .form-actions .btn {
+    padding: 0.875rem;
+    font-size: 0.95rem;
+  }
+
+  .form-footer {
+    font-size: 0.8rem;
+  }
+}

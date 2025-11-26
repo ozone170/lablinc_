@@ -248,7 +248,9 @@ const updateBookingStatus = asyncHandler(async (req, res) => {
 // @route   GET /api/bookings/:id/invoice
 // @access  Private
 const downloadInvoice = asyncHandler(async (req, res) => {
-  const booking = await Booking.findById(req.params.id);
+  const booking = await Booking.findById(req.params.id)
+    .populate('instrument', 'name category location pricing')
+    .populate('user', 'name email organization phone');
 
   if (!booking) {
     const error = new Error('Booking not found');
@@ -258,7 +260,7 @@ const downloadInvoice = asyncHandler(async (req, res) => {
 
   // Check authorization
   const isAuthorized = 
-    booking.user.toString() === req.user.id.toString() ||
+    booking.user._id.toString() === req.user.id.toString() ||
     booking.owner.toString() === req.user.id.toString() ||
     req.user.role === 'admin';
 
@@ -268,17 +270,21 @@ const downloadInvoice = asyncHandler(async (req, res) => {
     throw error;
   }
 
-  if (!booking.invoiceId) {
-    const error = new Error('Invoice not found for this booking');
-    error.statusCode = 404;
-    throw error;
+  // If invoice doesn't exist or file is missing, regenerate it
+  let invoicePath;
+  if (!booking.invoiceId || !fs.existsSync(getInvoicePath(booking.invoiceId))) {
+    console.log('Generating new invoice for booking:', booking._id);
+    const { invoiceId } = await generateInvoice(booking, booking.user, booking.instrument);
+    booking.invoiceId = invoiceId;
+    await booking.save();
+    invoicePath = getInvoicePath(invoiceId);
+  } else {
+    invoicePath = getInvoicePath(booking.invoiceId);
   }
 
-  const invoicePath = getInvoicePath(booking.invoiceId);
-
   if (!fs.existsSync(invoicePath)) {
-    const error = new Error('Invoice file not found');
-    error.statusCode = 404;
+    const error = new Error('Invoice file could not be generated');
+    error.statusCode = 500;
     throw error;
   }
 

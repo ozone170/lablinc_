@@ -106,13 +106,19 @@
 .equipment-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
+  gap: 1.5rem;
   margin-bottom: 2rem;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
   .equipment-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .equipment-grid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -326,5 +332,41 @@
 
   .cardContent h3 {
     font-size: 1.1rem;
+  }
+}
+
+/* Sidebar Layout */
+.equipment-container {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.equipment-sidebar {
+  position: sticky;
+  top: 100px;
+  height: fit-content;
+}
+
+.equipment-main {
+  min-width: 0;
+}
+
+@media (max-width: 1024px) {
+  .equipment-container {
+    grid-template-columns: 250px 1fr;
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .equipment-container {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .equipment-sidebar {
+    position: static;
   }
 }

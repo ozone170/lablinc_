@@ -69,3 +69,56 @@
 .booking-note strong {
   color: #2563eb;
 }
+
+@media (max-width: 768px) {
+  .booking-form {
+    padding: 1.25rem;
+  }
+
+  .booking-form h3 {
+    font-size: 1.2rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .booking-form .form-group {
+    margin-bottom: 1.25rem;
+  }
+
+  .booking-form textarea {
+    font-size: 0.95rem;
+    padding: 0.625rem;
+  }
+
+  .price-estimate {
+    padding: 0.875rem;
+  }
+
+  .estimate-row {
+    font-size: 0.9rem;
+  }
+
+  .estimate-row.total {
+    font-size: 1rem;
+  }
+
+  .booking-note {
+    padding: 0.875rem;
+  }
+
+  .booking-note p {
+    font-size: 0.8rem;
+  }
+}
+
+/* Form row for date/time inputs */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}

@@ -4,41 +4,79 @@ import './BookingForm.css';
 const BookingForm = ({ instrument, onSubmit, loading }) => {
   const [formData, setFormData] = useState({
     startDate: '',
+    startTime: '09:00',
     endDate: '',
+    endTime: '17:00',
     notes: '',
   });
   const [error, setError] = useState('');
   const [estimatedPrice, setEstimatedPrice] = useState(null);
 
-  const calculatePrice = (start, end) => {
-    if (!start || !end) return null;
+  const calculatePrice = (startDate, startTime, endDate, endTime) => {
+    if (!startDate || !endDate || !startTime || !endTime) return null;
 
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    const days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+    // Combine date and time
+    const start = new Date(`${startDate}T${startTime}`);
+    const end = new Date(`${endDate}T${endTime}`);
 
-    if (days <= 0) return null;
+    // Calculate total hours
+    const totalMilliseconds = end - start;
+    if (totalMilliseconds <= 0) return null;
+
+    const totalHours = totalMilliseconds / (1000 * 60 * 60);
+    const totalDays = totalMilliseconds / (1000 * 60 * 60 * 24);
 
     const { pricing } = instrument;
     let rate = 0;
     let rateType = '';
+    let duration = '';
 
-    // Choose best pricing option
-    if (days >= 30 && pricing.monthly) {
-      rate = pricing.monthly * Math.ceil(days / 30);
+    // Choose best pricing option based on duration
+    if (totalDays >= 30 && pricing.monthly) {
+      const months = Math.ceil(totalDays / 30);
+      rate = pricing.monthly * months;
       rateType = 'monthly';
-    } else if (days >= 7 && pricing.weekly) {
-      rate = pricing.weekly * Math.ceil(days / 7);
+      duration = `${months} month${months > 1 ? 's' : ''}`;
+    } else if (totalDays >= 7 && pricing.weekly) {
+      const weeks = Math.ceil(totalDays / 7);
+      rate = pricing.weekly * weeks;
       rateType = 'weekly';
-    } else if (pricing.daily) {
+      duration = `${weeks} week${weeks > 1 ? 's' : ''}`;
+    } else if (totalDays >= 1 && pricing.daily) {
+      const days = Math.ceil(totalDays);
       rate = pricing.daily * days;
       rateType = 'daily';
+      duration = `${days} day${days > 1 ? 's' : ''}`;
     } else if (pricing.hourly) {
-      rate = pricing.hourly * days * 24;
+      // For less than a day, use hourly rate
+      const hours = Math.ceil(totalHours);
+      rate = pricing.hourly * hours;
       rateType = 'hourly';
+      duration = `${hours} hour${hours > 1 ? 's' : ''}`;
+    } else if (pricing.daily) {
+      // Fallback to daily if no hourly rate
+      const days = Math.ceil(totalDays);
+      rate = pricing.daily * days;
+      rateType = 'daily';
+      duration = `${days} day${days > 1 ? 's' : ''}`;
     }
 
-    return { total: rate, days, rateType };
+    // Calculate fees
+    const baseAmount = rate;
+    const securityFee = Math.round(baseAmount * 0.10); // 10% security fee
+    const gst = Math.round(baseAmount * 0.18); // 18% GST
+    const totalAmount = baseAmount + securityFee + gst;
+
+    return { 
+      baseAmount,
+      securityFee,
+      gst,
+      total: totalAmount,
+      duration, 
+      rateType,
+      hours: Math.ceil(totalHours),
+      days: Math.ceil(totalDays)
+    };
   };
 
   const handleChange = (e) => {
@@ -47,9 +85,14 @@ const BookingForm = ({ instrument, onSubmit, loading }) => {
     setFormData(newFormData);
     setError('');
 
-    // Calculate price when dates change
-    if (name === 'startDate' || name === 'endDate') {
-      const price = calculatePrice(newFormData.startDate, newFormData.endDate);
+    // Calculate price when dates or times change
+    if (name === 'startDate' || name === 'endDate' || name === 'startTime' || name === 'endTime') {
+      const price = calculatePrice(
+        newFormData.startDate,
+        newFormData.startTime,
+        newFormData.endDate,
+        newFormData.endTime
+      );
       setEstimatedPrice(price);
     }
   };
@@ -58,31 +101,41 @@ const BookingForm = ({ instrument, onSubmit, loading }) => {
     e.preventDefault();
     setError('');
 
-    // Validate dates
-    const startDate = new Date(formData.startDate);
-    const endDate = new Date(formData.endDate);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // Combine date and time for validation
+    const start = new Date(`${formData.startDate}T${formData.startTime}`);
+    const end = new Date(`${formData.endDate}T${formData.endTime}`);
+    const now = new Date();
 
-    if (startDate < today) {
-      setError('Start date must be in the future');
+    if (start < now) {
+      setError('Start date and time must be in the future');
       return;
     }
 
-    if (endDate <= startDate) {
-      setError('End date must be after start date');
+    if (end <= start) {
+      setError('End date and time must be after start date and time');
+      return;
+    }
+
+    // Check minimum duration (1 hour)
+    const durationHours = (end - start) / (1000 * 60 * 60);
+    if (durationHours < 1) {
+      setError('Minimum booking duration is 1 hour');
       return;
     }
 
     if (!estimatedPrice) {
-      setError('Please select valid dates');
+      setError('Please select valid dates and times');
       return;
     }
 
+    // Combine date and time
+    const startDateTime = `${formData.startDate}T${formData.startTime}`;
+    const endDateTime = `${formData.endDate}T${formData.endTime}`;
+
     onSubmit({
       instrumentId: instrument._id,
-      startDate: formData.startDate,
-      endDate: formData.endDate,
+      startDate: startDateTime,
+      endDate: endDateTime,
       notes: formData.notes,
     });
   };
@@ -96,44 +149,90 @@ const BookingForm = ({ instrument, onSubmit, loading }) => {
     <form onSubmit={handleSubmit} className="booking-form">
       <h3>Book this Instrument</h3>
 
-      <div className="form-group">
-        <label htmlFor="startDate">Start Date *</label>
-        <input
-          type="date"
-          id="startDate"
-          name="startDate"
-          value={formData.startDate}
-          onChange={handleChange}
-          min={getTodayDate()}
-          required
-        />
+      <div className="form-row">
+        <div className="form-group">
+          <label htmlFor="startDate">Start Date *</label>
+          <input
+            type="date"
+            id="startDate"
+            name="startDate"
+            value={formData.startDate}
+            onChange={handleChange}
+            min={getTodayDate()}
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="startTime">Start Time *</label>
+          <input
+            type="time"
+            id="startTime"
+            name="startTime"
+            value={formData.startTime}
+            onChange={handleChange}
+            required
+          />
+        </div>
       </div>
 
-      <div className="form-group">
-        <label htmlFor="endDate">End Date *</label>
-        <input
-          type="date"
-          id="endDate"
-          name="endDate"
-          value={formData.endDate}
-          onChange={handleChange}
-          min={formData.startDate || getTodayDate()}
-          required
-        />
+      <div className="form-row">
+        <div className="form-group">
+          <label htmlFor="endDate">End Date *</label>
+          <input
+            type="date"
+            id="endDate"
+            name="endDate"
+            value={formData.endDate}
+            onChange={handleChange}
+            min={formData.startDate || getTodayDate()}
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="endTime">End Time *</label>
+          <input
+            type="time"
+            id="endTime"
+            name="endTime"
+            value={formData.endTime}
+            onChange={handleChange}
+            required
+          />
+        </div>
       </div>
 
       {estimatedPrice && (
         <div className="price-estimate">
           <div className="estimate-row">
             <span>Duration:</span>
-            <strong>{estimatedPrice.days} days</strong>
+            <strong>{estimatedPrice.duration}</strong>
           </div>
           <div className="estimate-row">
             <span>Rate Type:</span>
             <strong>{estimatedPrice.rateType}</strong>
           </div>
+          {estimatedPrice.hours < 24 && (
+            <div className="estimate-row">
+              <span>Total Hours:</span>
+              <strong>{estimatedPrice.hours} hour{estimatedPrice.hours > 1 ? 's' : ''}</strong>
+            </div>
+          )}
+          <div className="estimate-row">
+            <span>Base Amount:</span>
+            <strong>₹{estimatedPrice.baseAmount.toLocaleString()}</strong>
+          </div>
+          <div className="estimate-row">
+            <span>Security Fee (10%):</span>
+            <strong>₹{estimatedPrice.securityFee.toLocaleString()}</strong>
+          </div>
+          <div className="estimate-row">
+            <span>GST (18%):</span>
+            <strong>₹{estimatedPrice.gst.toLocaleString()}</strong>
+          </div>
           <div className="estimate-row total">
-            <span>Estimated Total:</span>
+            <span>Total Amount:</span>
             <strong>₹{estimatedPrice.total.toLocaleString()}</strong>
           </div>
         </div>

@@ -75,3 +75,23 @@ select.input-field {
   background-position: right 0.75rem center;
   padding-right: 2.5rem;
 }
+
+@media (max-width: 768px) {
+  .input-wrapper input,
+  .input-wrapper textarea {
+    font-size: 0.95rem;
+    padding: 0.625rem 0.875rem;
+  }
+
+  .input-label {
+    font-size: 0.85rem;
+  }
+
+  .input-error {
+    font-size: 0.8rem;
+  }
+
+  .input-helper {
+    font-size: 0.8rem;
+  }
+}

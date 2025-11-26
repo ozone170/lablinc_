@@ -1,0 +1,67 @@
+.confirm-dialog {
+  padding: 1rem 0;
+}
+
+.confirm-message {
+  margin: 0 0 2rem 0;
+  color: #333;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.confirm-actions .btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.confirm-actions .btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.confirm-actions .btn-primary {
+  background: #3498db;
+  color: white;
+}
+
+.confirm-actions .btn-primary:hover:not(:disabled) {
+  background: #2980b9;
+}
+
+.confirm-actions .btn-danger {
+  background: #e74c3c;
+  color: white;
+}
+
+.confirm-actions .btn-danger:hover:not(:disabled) {
+  background: #c0392b;
+}
+
+.confirm-actions .btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.confirm-actions .btn-secondary:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+
+@media (max-width: 480px) {
+  .confirm-actions {
+    flex-direction: column-reverse;
+  }
+
+  .confirm-actions .btn {
+    width: 100%;
+  }
+}

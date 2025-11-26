@@ -1,0 +1,373 @@
+.hero {
+  background: linear-gradient(rgba(26, 26, 46, 0.7), rgba(22, 33, 62, 0.8)),
+    url("https://hexagon.com/-/media/project/one-web/master-site/mi/production-software/radan_hero_marquee.jpg?h=880&iar=0&w=2560&hash=641AEB0BDCF0E29BB9D7461E42F8B0F9");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  color: white;
+  padding: 8rem 2rem;
+  text-align: center;
+  position: relative;
+  width: 100%;
+  margin: 0;
+}
+
+.heroContent {
+  text-align: center;
+}
+
+.heroContent h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+  color: white;
+}
+
+.heroContent p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  color: white;
+}
+
+.heroButtons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btnPrimary,
+.btnSecondary {
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s;
+  border: none;
+}
+
+.btnPrimary {
+  background: #4ecca3;
+  color: #1a1a2e;
+}
+
+.btnPrimary:hover {
+  background: #45b890;
+  transform: translateY(-2px);
+}
+
+.btnSecondary {
+  background: transparent;
+  color: white;
+  border: 2px solid #4ecca3;
+}
+
+.btnSecondary:hover {
+  background: #4ecca3;
+  color: #1a1a2e;
+}
+
+.categories,
+.featured,
+.howItWorks,
+.cta {
+  max-width: 1200px;
+  margin: 4rem auto;
+  padding: 0 2rem;
+  width: 100%;
+}
+
+.categories h2,
+.featured h2,
+.howItWorks h2,
+.cta h2 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: #1a1a2e;
+}
+
+.categoryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.categoryCard {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s;
+  border: 2px solid transparent;
+}
+
+.categoryCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  border-color: #4ecca3;
+}
+
+.categoryCard h3 {
+  color: #1a1a2e;
+  font-size: 1.1rem;
+}
+
+.featuredGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+.featuredCard {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s;
+}
+
+.featuredCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.featuredImage {
+  width: 100%;
+  height: 200px;
+  background: #f0f0f0;
+  overflow: hidden;
+  position: relative;
+}
+
+.featuredImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.featuredCard:hover .featuredImage img {
+  transform: scale(1.05);
+}
+
+.featuredCard h3 {
+  padding: 1.5rem;
+  color: #1a1a2e;
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+}
+
+.step {
+  text-align: center;
+}
+
+.stepNumber {
+  width: 60px;
+  height: 60px;
+  background: #4ecca3;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0 auto 1rem;
+}
+
+.step h3 {
+  margin-bottom: 0.5rem;
+  color: #1a1a2e;
+}
+
+.step p {
+  color: #666;
+}
+
+.cta {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+
+.cta h2 {
+  margin-bottom: 2rem;
+}
+
+.offerings {
+  background: #f8f9fa;
+  padding: 4rem 2rem;
+  margin-top: 4rem;
+  width: 100%;
+}
+
+.offeringsContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.offeringSection {
+  margin-bottom: 4rem;
+}
+
+.offeringSection:last-child {
+  margin-bottom: 0;
+}
+
+.offeringSection h2 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: #1a1a2e;
+}
+
+.offeringGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.offeringCard {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s;
+  text-align: center;
+}
+
+.offeringCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.offeringIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.offeringCard h3 {
+  color: #1a1a2e;
+  margin-bottom: 0.75rem;
+  font-size: 1.2rem;
+}
+
+.offeringCard p {
+  color: #666;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 3rem 1rem;
+    background-attachment: scroll;
+  }
+
+  .heroContent h1 {
+    font-size: 1.5rem;
+    line-height: 1.3;
+  }
+
+  .heroContent p {
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .heroButtons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .btnPrimary,
+  .btnSecondary {
+    width: 100%;
+    padding: 0.875rem 1.5rem;
+  }
+
+  .categories,
+  .featured,
+  .howItWorks,
+  .cta {
+    margin: 2rem auto;
+    padding: 0 1rem;
+  }
+
+  .categories h2,
+  .featured h2,
+  .howItWorks h2,
+  .cta h2 {
+    font-size: 1.5rem;
+  }
+
+  .categoryGrid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+  }
+
+  .categoryCard {
+    padding: 1.5rem 1rem;
+  }
+
+  .categoryCard h3 {
+    font-size: 0.95rem;
+  }
+
+  .featuredGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .featuredCard h3 {
+    font-size: 1rem;
+    padding: 1rem;
+  }
+
+  .offeringGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .offeringCard {
+    padding: 1.5rem;
+  }
+
+  .offeringIcon {
+    font-size: 2.5rem;
+  }
+
+  .offeringCard h3 {
+    font-size: 1.1rem;
+  }
+
+  .offeringCard p {
+    font-size: 0.9rem;
+  }
+
+  .steps {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .stepNumber {
+    width: 50px;
+    height: 50px;
+    font-size: 1.3rem;
+  }
+
+  .cta {
+    padding: 2rem 1rem;
+  }
+}

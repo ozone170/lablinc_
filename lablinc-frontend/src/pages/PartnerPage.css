@@ -1,0 +1,230 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.hero {
+  text-align: center;
+  padding: 3rem 0;
+  margin-bottom: 3rem;
+}
+
+.hero h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: white;
+  margin: 0 0 1rem 0;
+  text-align: center;
+}
+
+.hero p {
+  font-size: 1.2rem;
+  color: white;
+}
+
+.benefits {
+  margin-bottom: 4rem;
+}
+
+.benefits h2 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: #1a1a2e;
+}
+
+.benefitGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+.benefit {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.benefit h3 {
+  margin-bottom: 1rem;
+  color: #1a1a2e;
+}
+
+.benefit p {
+  color: #666;
+  line-height: 1.6;
+}
+
+.equipment {
+  margin-bottom: 4rem;
+}
+
+.equipment h2 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: #1a1a2e;
+}
+
+.equipmentList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.equipmentItem {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #4ecca3;
+}
+
+.formSection {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.formSection h2 {
+  margin-bottom: 1.5rem;
+  color: #1a1a2e;
+}
+
+.form {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.formGroup input,
+.formGroup textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.formGroup input:focus,
+.formGroup textarea:focus {
+  outline: none;
+  border-color: #4ecca3;
+}
+
+.submitBtn {
+  padding: 1rem 2rem;
+  background: #4ecca3;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.submitBtn:hover {
+  background: #45b890;
+  transform: translateY(-2px);
+}
+
+.successMessage {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #d4edda;
+  color: #155724;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.errorMessage {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f8d7da;
+  color: #721c24;
+  border-radius: 6px;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .hero {
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+  }
+
+  .hero h1 {
+    font-size: 1.75rem;
+  }
+
+  .hero p {
+    font-size: 1rem;
+  }
+
+  .benefits,
+  .equipment,
+  .formSection {
+    margin-bottom: 2.5rem;
+  }
+
+  .benefits h2,
+  .equipment h2,
+  .formSection h2 {
+    font-size: 1.5rem;
+  }
+
+  .benefitGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .benefit {
+    padding: 1.5rem;
+  }
+
+  .benefit h3 {
+    font-size: 1.1rem;
+  }
+
+  .benefit p {
+    font-size: 0.9rem;
+  }
+
+  .equipmentList {
+    grid-template-columns: 1fr;
+  }
+
+  .equipmentItem {
+    font-size: 0.9rem;
+  }
+
+  .formSection {
+    padding: 1.5rem;
+  }
+
+  .formGroup label {
+    font-size: 0.95rem;
+  }
+
+  .formGroup input,
+  .formGroup textarea {
+    font-size: 0.95rem;
+  }
+
+  .submitBtn {
+    width: 100%;
+    padding: 0.875rem;
+  }
+}

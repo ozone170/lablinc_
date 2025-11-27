@@ -1,0 +1,44 @@
+{
+  "name": "lablinc-backend",
+  "version": "1.0.0",
+  "description": "LabLinc Platform - Backend API for equipment sharing between MSMEs and research institutes",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "create-admin": "node scripts/create-admin.js",
+    "reset-admin": "node scripts/reset-admin-password.js",
+    "reset-indexes": "node scripts/reset-indexes.js",
+    "seed-vtu": "node scripts/seed-vtu-equipment.js",
+    "update-vtu-user": "node scripts/update-vtu-user.js"
+  },
+  "keywords": [
+    "lablinc",
+    "equipment-sharing",
+    "msme",
+    "research-institute",
+    "booking-system"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "express-validator": "^7.2.1",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.9.3",
+    "morgan": "^1.10.0",
+    "pdfkit": "^0.15.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

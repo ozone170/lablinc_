@@ -6,10 +6,16 @@
 
 ```bash
 cd lablinc-backend
-node src/server.js
+npm install  # First time only
+npm start
 ```
 
 **URL**: http://localhost:5000
+
+For development with auto-reload:
+```bash
+npm run dev
+```
 
 ### Start Frontend
 
@@ -231,11 +237,7 @@ lablinc/
 │   │   └── utils/            # Utilities
 │   └── public/               # Static files
 │
-└── Documentation/
-    ├── FINAL_SUMMARY.md      # Complete overview
-    ├── LABLINC_COMPLETE.md   # Detailed docs
-    ├── TESTING_GUIDE.md      # Testing procedures
-    └── ACCESSIBILITY.md      # A11y guidelines
+
 ```
 
 ## 🔒 Environment Variables
@@ -348,15 +350,27 @@ VITE_API_URL=http://localhost:5000/api
 - [x] XSS prevention
 - [x] SQL injection prevention
 
-## 📚 Documentation
+## 📚 Additional Scripts
 
-- **FINAL_SUMMARY.md** - Complete project summary
-- **LABLINC_COMPLETE.md** - Detailed feature documentation
-- **TESTING_GUIDE.md** - Testing procedures
-- **ACCESSIBILITY.md** - Accessibility guidelines
-- **SECURITY.md** - Security implementation
-- **DEPLOYMENT.md** - Deployment guide
-- **PHASE_19_COMPLETE.md** - Latest phase details
+### Backend Utility Scripts
+```bash
+cd lablinc-backend
+
+# Create admin user
+npm run create-admin
+
+# Reset admin password
+npm run reset-admin
+
+# Reset database indexes
+npm run reset-indexes
+
+# Seed VTU equipment data
+npm run seed-vtu
+
+# Update VTU user
+npm run update-vtu-user
+```
 
 ## 🆘 Support
 

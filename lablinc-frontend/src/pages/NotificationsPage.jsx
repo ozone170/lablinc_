@@ -60,14 +60,21 @@ const NotificationsPage = () => {
       <div className="notifications-page">
         <div className="notifications-header">
           <div>
-            <h1>Notifications</h1>
+            <h1>📬 Notifications</h1>
             {unreadCount > 0 && (
-              <p className="unread-summary">{unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}</p>
+              <p className="unread-summary">
+                {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''} • Stay updated with your latest activities
+              </p>
+            )}
+            {unreadCount === 0 && notifications.length > 0 && (
+              <p className="unread-summary">
+                All caught up! • {notifications.length} total notification{notifications.length !== 1 ? 's' : ''}
+              </p>
             )}
           </div>
           {unreadCount > 0 && (
             <button onClick={handleMarkAllAsRead} className="btn btn-secondary">
-              Mark All as Read
+              ✅ Mark All as Read
             </button>
           )}
         </div>
@@ -77,19 +84,19 @@ const NotificationsPage = () => {
             className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
             onClick={() => setFilter('all')}
           >
-            All ({notifications.length})
+            📋 All ({notifications.length})
           </button>
           <button
             className={`filter-btn ${filter === 'unread' ? 'active' : ''}`}
             onClick={() => setFilter('unread')}
           >
-            Unread ({unreadCount})
+            🔔 Unread ({unreadCount})
           </button>
           <button
             className={`filter-btn ${filter === 'read' ? 'active' : ''}`}
             onClick={() => setFilter('read')}
           >
-            Read ({notifications.length - unreadCount})
+            ✅ Read ({notifications.length - unreadCount})
           </button>
         </div>
 
@@ -103,12 +110,20 @@ const NotificationsPage = () => {
             <div className="notifications-error">{error}</div>
           ) : filteredNotifications.length === 0 ? (
             <div className="notifications-empty">
-              <div className="empty-icon">🔔</div>
-              <h3>No notifications</h3>
+              <div className="empty-icon">
+                {filter === 'unread' && '📭'}
+                {filter === 'read' && '📂'}
+                {filter === 'all' && '📬'}
+              </div>
+              <h3>
+                {filter === 'unread' && 'No Unread Notifications'}
+                {filter === 'read' && 'No Read Notifications'}
+                {filter === 'all' && 'No Notifications Yet'}
+              </h3>
               <p>
-                {filter === 'unread' && 'You have no unread notifications'}
-                {filter === 'read' && 'You have no read notifications'}
-                {filter === 'all' && 'You have no notifications yet'}
+                {filter === 'unread' && 'You\'re all caught up! No new notifications to review.'}
+                {filter === 'read' && 'No notifications have been marked as read yet.'}
+                {filter === 'all' && 'When you receive notifications, they\'ll appear here. Stay tuned for updates!'}
               </p>
             </div>
           ) : (
@@ -123,13 +138,21 @@ const NotificationsPage = () => {
                       {notification.type === 'booking' && '📅'}
                       {notification.type === 'payment' && '💳'}
                       {notification.type === 'system' && 'ℹ️'}
+                      {notification.type === 'instrument' && '🔬'}
+                      {notification.type === 'user' && '👤'}
                       {!notification.type && '🔔'}
                     </div>
                     <div className="notification-details">
                       <p className="notification-message">{notification.message}</p>
                       <div className="notification-meta">
                         <span className="notification-date">
-                          {new Date(notification.createdAt).toLocaleString()}
+                          {new Date(notification.createdAt).toLocaleString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
                         </span>
                         {notification.type && (
                           <span className="notification-type">{notification.type}</span>

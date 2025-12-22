@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import NotificationBell from '../notifications/NotificationBell';
-import NavThemeToggle from '../ui/NavThemeToggle';
 import './Header.css';
 
 const Header = () => {
@@ -100,9 +99,14 @@ const Header = () => {
 
             {isAuthenticated && (
               <div className="mobile-user-section">
-                <span className="mobile-user-name">{user?.name} ({user?.role})</span>
+                <Link 
+                  to="/profile" 
+                  className="mobile-user-name"
+                  onClick={closeMobileMenu}
+                >
+                  {user?.name} ({user?.role})
+                </Link>
                 <div className="mobile-user-actions">
-                  <NavThemeToggle />
                   <button onClick={handleLogout} className="btn btn-secondary mobile-logout">
                     Logout
                   </button>
@@ -112,7 +116,6 @@ const Header = () => {
 
             {!isAuthenticated && (
               <div className="mobile-auth-buttons">
-                <NavThemeToggle />
                 <Link to="/login" className="btn btn-secondary" onClick={closeMobileMenu}>
                   Login
                 </Link>
@@ -124,13 +127,16 @@ const Header = () => {
           </nav>
 
           <div className="auth-section">
-            <NavThemeToggle />
             {isAuthenticated ? (
               <div className="user-menu">
                 <NotificationBell />
-                <span className="user-name">
+                <Link 
+                  to="/profile" 
+                  className="user-name"
+                  onClick={closeMobileMenu}
+                >
                   {user?.name} ({user?.role})
-                </span>
+                </Link>
                 <button onClick={handleLogout} className="btn btn-secondary">
                   Logout
                 </button>

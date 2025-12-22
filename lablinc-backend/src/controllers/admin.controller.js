@@ -5,8 +5,48 @@ const PartnerApplication = require('../models/PartnerApplication');
 const ContactMessage = require('../models/ContactMessage');
 const asyncHandler = require('../utils/asyncHandler');
 const { getPlatformAnalytics } = require('../services/analytics.service');
+const bcrypt = require('bcryptjs');
 
 // ============ USER MANAGEMENT ============
+
+// @desc    Create new user
+// @route   POST /api/admin/users
+// @access  Private (admin)
+const createUser = asyncHandler(async (req, res) => {
+  const { name, email, password, role, organization, phone, status } = req.body;
+
+  // Check if user already exists
+  const existingUser = await User.findOne({ email });
+  if (existingUser) {
+    const error = new Error('User with this email already exists');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  // Hash password
+  const hashedPassword = await bcrypt.hash(password, 12);
+
+  // Create user
+  const user = await User.create({
+    name,
+    email,
+    password: hashedPassword,
+    role: role || 'user',
+    organization,
+    phone,
+    status: status || 'active',
+    emailVerified: true // Admin created users are auto-verified
+  });
+
+  // Remove password from response
+  user.password = undefined;
+
+  res.status(201).json({
+    success: true,
+    message: 'User created successfully',
+    data: { user }
+  });
+});
 
 // @desc    Get all users
 // @route   GET /api/admin/users
@@ -83,6 +123,81 @@ const updateUserStatus = asyncHandler(async (req, res) => {
 
 // ============ INSTRUMENT MANAGEMENT ============
 
+// @desc    Create new instrument
+// @route   POST /api/admin/instruments
+// @access  Private (admin)
+const createInstrument = asyncHandler(async (req, res) => {
+  const { 
+    name, 
+    description, 
+    category, 
+    location, 
+    pricing, 
+    specifications, 
+    status, 
+    featured 
+  } = req.body;
+
+  // Create instrument with admin as owner
+  const instrument = await Instrument.create({
+    name,
+    description,
+    category,
+    location,
+    pricing: {
+      hourly: pricing?.hourly || null,
+      daily: pricing?.daily || null,
+      weekly: pricing?.weekly || null,
+      monthly: pricing?.monthly || null
+    },
+    specifications,
+    status: status || 'available',
+    featured: featured || false,
+    owner: req.user.id, // Admin becomes the owner
+    availability: 'available'
+  });
+
+  await instrument.populate('owner', 'name email organization');
+
+  res.status(201).json({
+    success: true,
+    message: 'Instrument created successfully',
+    data: { instrument }
+  });
+});
+
+// @desc    Get categories
+// @route   GET /api/admin/categories
+// @access  Private (admin)
+const getCategories = asyncHandler(async (req, res) => {
+  // Get unique categories from existing instruments
+  const categories = await Instrument.distinct('category', { 
+    status: 'active', 
+    deletedAt: null 
+  });
+
+  // Add default categories if none exist
+  const defaultCategories = [
+    'CNC Machines',
+    '3D Printers', 
+    'Electronics',
+    'Mechanical',
+    'Material Testing',
+    'GPU Workstations',
+    'AI Servers',
+    'Civil',
+    'Environmental',
+    'Prototyping'
+  ];
+
+  const allCategories = [...new Set([...categories, ...defaultCategories])];
+
+  res.json({
+    success: true,
+    data: allCategories
+  });
+});
+
 // @desc    Get all instruments (admin view)
 // @route   GET /api/admin/instruments
 // @access  Private (admin)
@@ -142,6 +257,114 @@ const toggleInstrumentFeature = asyncHandler(async (req, res) => {
 });
 
 // ============ BOOKING MANAGEMENT ============
+
+// @desc    Create new booking
+// @route   POST /api/admin/bookings
+// @access  Private (admin)
+const createBooking = asyncHandler(async (req, res) => {
+  const { 
+    userId, 
+    instrumentId, 
+    startDate, 
+    endDate, 
+    startTime, 
+    endTime, 
+    purpose, 
+    notes, 
+    status,
+    totalAmount 
+  } = req.body;
+
+  // Validate user exists
+  const user = await User.findById(userId);
+  if (!user) {
+    const error = new Error('User not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  // Validate instrument exists and is available
+  const instrument = await Instrument.findById(instrumentId);
+  if (!instrument) {
+    const error = new Error('Instrument not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  // Check for conflicting bookings
+  const conflictingBooking = await Booking.findOne({
+    instrument: instrumentId,
+    status: { $in: ['pending', 'confirmed'] },
+    $or: [
+      {
+        startDate: { $lte: new Date(endDate) },
+        endDate: { $gte: new Date(startDate) }
+      }
+    ]
+  });
+
+  if (conflictingBooking) {
+    const error = new Error('Instrument is already booked for the selected dates');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  // Calculate pricing if not provided
+  let calculatedAmount = totalAmount;
+  if (!calculatedAmount) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffTime = Math.abs(end - start);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+    if (instrument.pricing?.daily) {
+      calculatedAmount = instrument.pricing.daily * diffDays;
+    } else if (instrument.pricing?.hourly) {
+      calculatedAmount = instrument.pricing.hourly * 8 * diffDays;
+    } else {
+      calculatedAmount = 0;
+    }
+  }
+
+  // Create booking
+  const booking = await Booking.create({
+    user: userId,
+    instrument: instrumentId,
+    owner: instrument.owner,
+    startDate: new Date(startDate),
+    endDate: new Date(endDate),
+    startTime,
+    endTime,
+    purpose,
+    notes,
+    status: status || 'pending',
+    pricing: {
+      totalAmount: calculatedAmount,
+      currency: 'INR'
+    },
+    instrumentName: instrument.name,
+    userName: user.name,
+    userEmail: user.email,
+    statusHistory: [{
+      status: status || 'pending',
+      changedAt: new Date(),
+      changedBy: req.user.id,
+      note: 'Booking created by admin'
+    }]
+  });
+
+  await booking.populate([
+    { path: 'user', select: 'name email organization' },
+    { path: 'instrument', select: 'name category' },
+    { path: 'owner', select: 'name email organization' }
+  ]);
+
+  res.status(201).json({
+    success: true,
+    message: 'Booking created successfully',
+    data: { booking }
+  });
+});
 
 // @desc    Get all bookings (admin view)
 // @route   GET /api/admin/bookings
@@ -338,20 +561,6 @@ const updateContactMessage = asyncHandler(async (req, res) => {
     data: { message }
   });
 });
-
-module.exports = {
-  getUsers,
-  updateUserStatus,
-  getInstruments,
-  toggleInstrumentFeature,
-  getBookings,
-  updateBooking,
-  getAnalytics,
-  getPartnerApplications,
-  updatePartnerApplication,
-  getContactMessages,
-  updateContactMessage
-};
 
 // @desc    Delete user (hard delete or deactivate)
 // @route   DELETE /api/admin/users/:id
@@ -718,10 +927,14 @@ const sendBroadcast = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
+  createUser,
   getUsers,
   updateUserStatus,
+  createInstrument,
+  getCategories,
   getInstruments,
   toggleInstrumentFeature,
+  createBooking,
   getBookings,
   updateBooking,
   getAnalytics,

@@ -9,7 +9,8 @@ const {
   forgotPassword, 
   resetPassword, 
   changePassword, 
-  verifyEmail 
+  verifyEmail,
+  updateProfile
 } = require('../controllers/auth.controller');
 const authMiddleware = require('../middlewares/auth.middleware');
 const validate = require('../middlewares/validate.middleware');
@@ -51,6 +52,14 @@ const changePasswordValidation = [
   body('newPassword').isLength({ min: 6 }).withMessage('New password must be at least 6 characters')
 ];
 
+const updateProfileValidation = [
+  body('name').optional().trim().notEmpty().withMessage('Name cannot be empty'),
+  body('email').optional().isEmail().normalizeEmail().withMessage('Valid email is required'),
+  body('phone').optional().trim(),
+  body('organization').optional().trim(),
+  body('address').optional().trim()
+];
+
 const verifyEmailValidation = [
   query('token').notEmpty().withMessage('Verification token is required')
 ];
@@ -61,6 +70,7 @@ router.post('/login', authLimiter, loginValidation, validate, login);
 router.post('/refresh', refreshValidation, validate, refresh);
 router.post('/logout', authMiddleware, logout);
 router.get('/me', authMiddleware, getMe);
+router.patch('/me', authMiddleware, updateProfileValidation, validate, updateProfile);
 router.post('/forgot-password', authLimiter, forgotPasswordValidation, validate, forgotPassword);
 router.post('/reset-password', authLimiter, resetPasswordValidation, validate, resetPassword);
 router.post('/change-password', authMiddleware, changePasswordValidation, validate, changePassword);

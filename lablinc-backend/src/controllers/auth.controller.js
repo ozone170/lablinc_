@@ -426,6 +426,61 @@ const verifyEmail = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc    Update user profile
+// @route   PATCH /api/auth/me
+// @access  Private
+const updateProfile = asyncHandler(async (req, res) => {
+  const { name, email, phone, organization, address } = req.body;
+
+  // Find user
+  const user = await User.findById(req.user.id);
+
+  if (!user) {
+    const error = new Error('User not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  // Check if email is being changed and if it's already taken
+  if (email && email !== user.email) {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      const error = new Error('Email is already in use');
+      error.statusCode = 400;
+      throw error;
+    }
+  }
+
+  // Update fields
+  if (name) user.name = name;
+  if (email) user.email = email;
+  if (phone !== undefined) user.phone = phone;
+  if (organization !== undefined) user.organization = organization;
+  if (address !== undefined) user.address = address;
+
+  await user.save();
+
+  res.json({
+    success: true,
+    message: 'Profile updated successfully',
+    data: {
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        phone: user.phone,
+        organization: user.organization,
+        address: user.address,
+        status: user.status,
+        emailVerified: user.emailVerified,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt
+      }
+    }
+  });
+});
+
 module.exports = {
   register,
   login,
@@ -435,5 +490,6 @@ module.exports = {
   forgotPassword,
   resetPassword,
   changePassword,
-  verifyEmail
+  verifyEmail,
+  updateProfile
 };

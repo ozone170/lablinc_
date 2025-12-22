@@ -1,10 +1,14 @@
 const express = require('express');
 const { body } = require('express-validator');
 const {
+  createUser,
   getUsers,
   updateUserStatus,
+  createInstrument,
+  getCategories,
   getInstruments,
   toggleInstrumentFeature,
+  createBooking,
   getBookings,
   updateBooking,
   getAnalytics,
@@ -31,6 +35,31 @@ router.use(authMiddleware);
 router.use(requireRole('admin'));
 
 // Validation rules
+const createUserValidation = [
+  body('name').trim().notEmpty().withMessage('Name is required'),
+  body('email').isEmail().withMessage('Valid email is required'),
+  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+  body('role').optional().isIn(['user', 'admin', 'msme', 'institute']).withMessage('Invalid role'),
+  body('status').optional().isIn(['active', 'inactive', 'suspended']).withMessage('Invalid status')
+];
+
+const createInstrumentValidation = [
+  body('name').trim().notEmpty().withMessage('Instrument name is required'),
+  body('description').trim().notEmpty().withMessage('Description is required'),
+  body('category').notEmpty().withMessage('Category is required'),
+  body('location').trim().notEmpty().withMessage('Location is required'),
+  body('pricing.hourly').optional().isNumeric().withMessage('Hourly rate must be a number'),
+  body('pricing.daily').optional().isNumeric().withMessage('Daily rate must be a number')
+];
+
+const createBookingValidation = [
+  body('userId').isMongoId().withMessage('Valid user ID is required'),
+  body('instrumentId').isMongoId().withMessage('Valid instrument ID is required'),
+  body('startDate').isISO8601().withMessage('Valid start date is required'),
+  body('endDate').isISO8601().withMessage('Valid end date is required'),
+  body('purpose').trim().notEmpty().withMessage('Purpose is required')
+];
+
 const updateUserStatusValidation = [
   body('status').isIn(['active', 'inactive', 'suspended']).withMessage('Invalid status')
 ];
@@ -51,14 +80,18 @@ const updateContactValidation = [
 ];
 
 // User management
+router.post('/users', createUserValidation, validate, createUser);
 router.get('/users', getUsers);
 router.patch('/users/:id/status', updateUserStatusValidation, validate, updateUserStatus);
 
 // Instrument management
+router.post('/instruments', createInstrumentValidation, validate, createInstrument);
+router.get('/categories', getCategories);
 router.get('/instruments', getInstruments);
 router.patch('/instruments/:id/feature', toggleInstrumentFeature);
 
 // Booking management
+router.post('/bookings', createBookingValidation, validate, createBooking);
 router.get('/bookings', getBookings);
 router.patch('/bookings/:id', updateBookingValidation, validate, updateBooking);
 router.get('/bookings/:id/invoice', require('../controllers/bookings.controller').downloadInvoice);

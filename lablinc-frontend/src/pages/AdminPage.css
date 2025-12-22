@@ -7,7 +7,7 @@
   position: relative;
 }
 
-/* Sidebar Styles */
+/* Sidebar Styles - Fixed on Desktop */
 .admin-sidebar {
   width: var(--sidebar-width);
   background: linear-gradient(180deg, var(--color-admin-sidebar) 0%, var(--color-admin-sidebar-dark) 100%);
@@ -17,20 +17,16 @@
   position: sticky;
   top: 0;
   height: calc(100vh - var(--header-height));
-  transition: all var(--duration-300) var(--ease-in-out);
   box-shadow: var(--shadow-lg);
   z-index: var(--z-index-docked);
-}
-
-.admin-sidebar.closed {
-  width: var(--sidebar-width-collapsed);
+  flex-shrink: 0;
 }
 
 .sidebar-header {
   padding: var(--space-8) var(--space-6);
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -38,7 +34,6 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  overflow: hidden;
 }
 
 .logo-icon {
@@ -57,26 +52,9 @@
   background-clip: text;
 }
 
+/* Hide sidebar toggle on desktop - not needed for fixed sidebar */
 .sidebar-toggle {
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  color: var(--color-text-inverse);
-  width: var(--space-8);
-  height: var(--space-8);
-  border-radius: var(--radius-lg);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all var(--duration-200) var(--ease-in-out);
-  flex-shrink: 0;
-  min-width: var(--touch-target-min);
-  min-height: var(--touch-target-min);
-}
-
-.sidebar-toggle:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: scale(1.1);
+  display: none;
 }
 
 .sidebar-nav {
@@ -366,7 +344,7 @@
   display: none;
 }
 
-/* Large screens: sidebar is sticky, hide mobile toggle */
+/* Large screens: sidebar is always fixed and visible */
 @media (min-width: 1024px) {
   .mobile-menu-toggle {
     display: none;
@@ -376,14 +354,36 @@
     position: sticky;
     transform: translateX(0);
     z-index: var(--z-index-docked);
+    /* Always visible - no collapsible functionality on desktop */
   }
 
   .sidebar-backdrop {
     display: none;
   }
 
-  .sidebar-toggle {
-    display: flex;
+  /* Remove all closed state styles for desktop */
+  .admin-sidebar.closed {
+    width: var(--sidebar-width);
+    transform: translateX(0);
+  }
+
+  .admin-sidebar.closed .nav-label,
+  .admin-sidebar.closed .nav-indicator {
+    display: block;
+  }
+
+  .admin-sidebar.closed .nav-item {
+    justify-content: flex-start;
+    padding: var(--space-4) var(--space-5);
+  }
+
+  .admin-sidebar.closed .sidebar-footer {
+    padding: var(--space-6);
+  }
+
+  /* Remove tooltip functionality for desktop since sidebar is always open */
+  .admin-sidebar.closed .nav-item:hover::after {
+    display: none;
   }
 }
 
@@ -522,41 +522,43 @@
   height: 60%;
 }
 
-/* Sidebar closed state adjustments */
-.admin-sidebar.closed .nav-item {
-  justify-content: center;
-  padding: var(--space-4);
-}
+/* Mobile-only: Sidebar closed state adjustments */
+@media (max-width: 1023px) {
+  .admin-sidebar.closed .nav-item {
+    justify-content: center;
+    padding: var(--space-4);
+  }
 
-.admin-sidebar.closed .nav-label,
-.admin-sidebar.closed .nav-indicator {
-  display: none;
-}
+  .admin-sidebar.closed .nav-label,
+  .admin-sidebar.closed .nav-indicator {
+    display: none;
+  }
 
-.admin-sidebar.closed .sidebar-footer {
-  padding: var(--space-4);
-}
+  .admin-sidebar.closed .sidebar-footer {
+    padding: var(--space-4);
+  }
 
-/* Tooltip for closed sidebar */
-.admin-sidebar.closed .nav-item {
-  position: relative;
-}
+  /* Tooltip for closed sidebar on mobile only */
+  .admin-sidebar.closed .nav-item {
+    position: relative;
+  }
 
-.admin-sidebar.closed .nav-item:hover::after {
-  content: attr(data-label);
-  position: absolute;
-  left: 100%;
-  top: 50%;
-  transform: translateY(-50%);
-  margin-left: var(--space-2);
-  padding: var(--space-2) var(--space-4);
-  background: var(--color-admin-sidebar);
-  color: var(--color-text-inverse);
-  border-radius: var(--radius-lg);
-  white-space: nowrap;
-  font-size: var(--font-size-sm);
-  box-shadow: var(--shadow-lg);
-  z-index: var(--z-index-tooltip);
+  .admin-sidebar.closed .nav-item:hover::after {
+    content: attr(data-label);
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    background: var(--color-admin-sidebar);
+    color: var(--color-text-inverse);
+    border-radius: var(--radius-lg);
+    white-space: nowrap;
+    font-size: var(--font-size-sm);
+    box-shadow: var(--shadow-lg);
+    z-index: var(--z-index-tooltip);
+  }
 }
 
 /* Print styles */

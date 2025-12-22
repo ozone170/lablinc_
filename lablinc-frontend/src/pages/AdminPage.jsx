@@ -48,20 +48,13 @@ const AdminPage = () => {
   return (
     <AdminLayout>
       <div className="admin-page-modern">
-        {/* Sidebar */}
+        {/* Fixed Sidebar - Always visible on desktop */}
         <aside className={`admin-sidebar ${sidebarOpen ? 'open' : 'closed'}`}>
           <div className="sidebar-header">
             <div className="sidebar-logo">
               <span className="logo-icon">⚡</span>
-              {sidebarOpen && <span className="logo-text">Admin Panel</span>}
+              <span className="logo-text">Admin Panel</span>
             </div>
-            <button 
-              className="sidebar-toggle"
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              aria-label="Toggle sidebar"
-            >
-              {sidebarOpen ? '◀' : '▶'}
-            </button>
           </div>
 
           <nav className="sidebar-nav">
@@ -74,19 +67,17 @@ const AdminPage = () => {
                 title={item.label}
               >
                 <span className="nav-icon">{item.icon}</span>
-                {sidebarOpen && <span className="nav-label">{item.label}</span>}
+                <span className="nav-label">{item.label}</span>
                 {activeTab === item.id && <span className="nav-indicator" />}
               </button>
             ))}
           </nav>
 
           <div className="sidebar-footer">
-            {sidebarOpen && (
-              <div className="sidebar-info">
-                <p className="info-text">LabLinc Admin</p>
-                <p className="info-version">v2.0.0</p>
-              </div>
-            )}
+            <div className="sidebar-info">
+              <p className="info-text">LabLinc Admin</p>
+              <p className="info-version">v2.0.0</p>
+            </div>
           </div>
         </aside>
 

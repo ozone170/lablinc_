@@ -32,7 +32,7 @@
 }
 
 .heroContent p {
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-2xl);
   margin-bottom: var(--space-8);
   max-width: 800px;
   margin-left: auto;

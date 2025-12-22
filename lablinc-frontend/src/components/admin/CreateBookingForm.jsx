@@ -47,7 +47,8 @@ const CreateBookingForm = ({ onBookingCreated, onCancel }) => {
 
   const fetchInstruments = async () => {
     try {
-      const response = await adminAPI.getInstruments({ limit: 100, status: 'available' });
+      const response = await adminAPI.getInstruments({ limit: 100 });
+      
       let instrumentsData = [];
       if (response?.data?.instruments) {
         instrumentsData = response.data.instruments;
@@ -58,7 +59,13 @@ const CreateBookingForm = ({ onBookingCreated, onCancel }) => {
       } else if (Array.isArray(response)) {
         instrumentsData = response;
       }
-      setInstruments(instrumentsData);
+      
+      // Filter for available instruments on frontend since backend doesn't filter by availability
+      const availableInstruments = instrumentsData.filter(inst => 
+        inst.availability === 'available' || inst.status === 'available'
+      );
+      
+      setInstruments(availableInstruments);
     } catch (error) {
       console.error('Failed to fetch instruments:', error);
       setInstruments([]);

@@ -1,0 +1,613 @@
+/* Animation System - Performance Optimized */
+
+/* Animation Configuration */
+:root {
+  /* Animation Durations - Consistent timing scale */
+  --duration-instant: 0ms;
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 350ms;
+  --duration-slower: 500ms;
+  --duration-slowest: 750ms;
+
+  /* Animation Easing Functions */
+  --ease-linear: linear;
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-elastic: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  /* Animation Delays */
+  --delay-none: 0ms;
+  --delay-short: 75ms;
+  --delay-medium: 150ms;
+  --delay-long: 300ms;
+
+  /* Performance Optimization */
+  --will-change-auto: auto;
+  --will-change-transform: transform;
+  --will-change-opacity: opacity;
+  --will-change-scroll: scroll-position;
+}
+
+/* Reduced Motion Support - Accessibility First */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-instant: 0ms;
+    --duration-fast: 0ms;
+    --duration-normal: 0ms;
+    --duration-slow: 0ms;
+    --duration-slower: 0ms;
+    --duration-slowest: 0ms;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Keep essential animations for functionality */
+  .loading-spinner,
+  .skeleton-loader.animate::before,
+  .progress-bar {
+    animation-duration: 1s !important;
+  }
+}
+
+/* Base Animation Classes */
+.animate-fade-in {
+  animation: fade-in var(--duration-normal) var(--ease-out) forwards;
+}
+
+.animate-fade-out {
+  animation: fade-out var(--duration-normal) var(--ease-in) forwards;
+}
+
+.animate-slide-up {
+  animation: slide-up var(--duration-normal) var(--ease-out) forwards;
+}
+
+.animate-slide-down {
+  animation: slide-down var(--duration-normal) var(--ease-out) forwards;
+}
+
+.animate-slide-left {
+  animation: slide-left var(--duration-normal) var(--ease-out) forwards;
+}
+
+.animate-slide-right {
+  animation: slide-right var(--duration-normal) var(--ease-out) forwards;
+}
+
+.animate-scale-in {
+  animation: scale-in var(--duration-normal) var(--ease-out) forwards;
+}
+
+.animate-scale-out {
+  animation: scale-out var(--duration-normal) var(--ease-in) forwards;
+}
+
+.animate-bounce-in {
+  animation: bounce-in var(--duration-slow) var(--ease-bounce) forwards;
+}
+
+.animate-shake {
+  animation: shake var(--duration-slow) var(--ease-in-out);
+}
+
+.animate-pulse {
+  animation: pulse var(--duration-slower) var(--ease-in-out) infinite;
+}
+
+.animate-spin {
+  animation: spin 1s var(--ease-linear) infinite;
+}
+
+/* Performance-Optimized Keyframes */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-down {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-left {
+  from {
+    transform: translateX(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-right {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes scale-in {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes scale-out {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+}
+
+@keyframes bounce-in {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+  70% {
+    transform: scale(0.9);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-5px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(5px);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Stagger Animation Utilities */
+.stagger-children > * {
+  animation-delay: calc(var(--stagger-delay, 50ms) * var(--stagger-index, 0));
+}
+
+.stagger-children > *:nth-child(1) { --stagger-index: 0; }
+.stagger-children > *:nth-child(2) { --stagger-index: 1; }
+.stagger-children > *:nth-child(3) { --stagger-index: 2; }
+.stagger-children > *:nth-child(4) { --stagger-index: 3; }
+.stagger-children > *:nth-child(5) { --stagger-index: 4; }
+.stagger-children > *:nth-child(6) { --stagger-index: 5; }
+.stagger-children > *:nth-child(7) { --stagger-index: 6; }
+.stagger-children > *:nth-child(8) { --stagger-index: 7; }
+.stagger-children > *:nth-child(9) { --stagger-index: 8; }
+.stagger-children > *:nth-child(10) { --stagger-index: 9; }
+
+/* Performance Optimization Classes */
+.will-change-transform {
+  will-change: var(--will-change-transform);
+}
+
+.will-change-opacity {
+  will-change: var(--will-change-opacity);
+}
+
+.will-change-auto {
+  will-change: var(--will-change-auto);
+}
+
+/* Transition Utilities */
+.transition-none {
+  transition: none;
+}
+
+.transition-all {
+  transition: all var(--duration-normal) var(--ease-in-out);
+}
+
+.transition-colors {
+  transition: color var(--duration-fast) var(--ease-in-out),
+              background-color var(--duration-fast) var(--ease-in-out),
+              border-color var(--duration-fast) var(--ease-in-out);
+}
+
+.transition-opacity {
+  transition: opacity var(--duration-fast) var(--ease-in-out);
+}
+
+.transition-transform {
+  transition: transform var(--duration-normal) var(--ease-in-out);
+}
+
+.transition-shadow {
+  transition: box-shadow var(--duration-normal) var(--ease-in-out);
+}
+
+/* Hover and Focus Animations */
+.hover-lift {
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+.hover-scale {
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+.hover-glow {
+  transition: box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 20px rgba(79, 236, 163, 0.3);
+}
+
+.focus-ring {
+  transition: box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.focus-ring:focus-visible {
+  box-shadow: var(--shadow-focus-primary);
+}
+
+/* Loading Animations - Optimized */
+.loading-dots {
+  display: inline-flex;
+  gap: var(--space-1);
+}
+
+.loading-dots .dot {
+  width: 8px;
+  height: 8px;
+  background: var(--color-primary);
+  border-radius: 50%;
+  animation: loading-dot var(--duration-slower) var(--ease-in-out) infinite;
+}
+
+.loading-dots .dot:nth-child(1) { animation-delay: 0ms; }
+.loading-dots .dot:nth-child(2) { animation-delay: 150ms; }
+.loading-dots .dot:nth-child(3) { animation-delay: 300ms; }
+
+@keyframes loading-dot {
+  0%, 80%, 100% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Progress Bar Animation */
+.progress-bar {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-full);
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  border-radius: var(--radius-full);
+  transition: width var(--duration-normal) var(--ease-out);
+}
+
+.progress-bar-indeterminate .progress-bar-fill {
+  width: 30%;
+  animation: progress-indeterminate 2s var(--ease-in-out) infinite;
+}
+
+@keyframes progress-indeterminate {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}
+
+/* Modal and Overlay Animations */
+.modal-backdrop {
+  animation: fade-in var(--duration-normal) var(--ease-out) forwards;
+}
+
+.modal-backdrop.closing {
+  animation: fade-out var(--duration-normal) var(--ease-in) forwards;
+}
+
+.modal-content {
+  animation: modal-enter var(--duration-normal) var(--ease-out) forwards;
+}
+
+.modal-content.closing {
+  animation: modal-exit var(--duration-normal) var(--ease-in) forwards;
+}
+
+@keyframes modal-enter {
+  from {
+    transform: scale(0.9) translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes modal-exit {
+  from {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.9) translateY(-20px);
+    opacity: 0;
+  }
+}
+
+/* Toast Animations */
+.toast-enter {
+  animation: toast-slide-in var(--duration-normal) var(--ease-out) forwards;
+}
+
+.toast-exit {
+  animation: toast-slide-out var(--duration-normal) var(--ease-in) forwards;
+}
+
+@keyframes toast-slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes toast-slide-out {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Card Animations */
+.card-animate {
+  transition: transform var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.card-animate:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Button Animations */
+.btn-animate {
+  position: relative;
+  overflow: hidden;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.btn-animate::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left var(--duration-normal) var(--ease-out);
+}
+
+.btn-animate:hover::before {
+  left: 100%;
+}
+
+.btn-animate:active {
+  transform: scale(0.98);
+}
+
+/* Form Field Animations */
+.form-field {
+  position: relative;
+}
+
+.form-field input,
+.form-field textarea {
+  transition: border-color var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.form-field input:focus,
+.form-field textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-focus-primary);
+}
+
+.form-field label {
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+/* Navigation Animations */
+.nav-item {
+  position: relative;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.nav-item::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--color-primary);
+  transition: width var(--duration-normal) var(--ease-out);
+}
+
+.nav-item:hover::after,
+.nav-item.active::after {
+  width: 100%;
+}
+
+/* Skeleton Animation Enhancement */
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-shimmer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: shimmer var(--duration-slower) var(--ease-in-out) infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Performance Optimization - GPU Acceleration */
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Animation State Management */
+.animation-paused {
+  animation-play-state: paused;
+}
+
+.animation-running {
+  animation-play-state: running;
+}
+
+/* Responsive Animation Adjustments */
+@media (max-width: 768px) {
+  :root {
+    --duration-fast: 100ms;
+    --duration-normal: 200ms;
+    --duration-slow: 300ms;
+  }
+
+  .hover-lift:hover {
+    transform: none;
+  }
+
+  .card-animate:hover {
+    transform: none;
+  }
+}
+
+/* High Performance Mode */
+@media (prefers-reduced-data: reduce) {
+  .skeleton-shimmer::before,
+  .progress-bar-indeterminate .progress-bar-fill,
+  .loading-dots .dot {
+    animation: none;
+  }
+}

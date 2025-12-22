@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import MainLayout from '../components/layout/MainLayout';
+import NoFooterLayout from '../components/layout/NoFooterLayout';
 import EquipmentCard from '../components/equipment/EquipmentCard';
 import EquipmentFilters from '../components/equipment/EquipmentFilters';
 import { instrumentsAPI } from '../api/instruments.api';
@@ -64,15 +64,15 @@ const EquipmentPage = () => {
   };
 
   return (
-    <MainLayout>
+    <NoFooterLayout>
       <div className="equipment-page">
         <div className="page-header">
           <h1>Equipment Catalogue</h1>
           <p>Browse and book research instruments from leading institutes</p>
         </div>
 
-        <div className="equipment-container">
-          <aside className="equipment-sidebar">
+        <div className="container">
+          <aside className="sidebar">
             <EquipmentFilters
               filters={filters}
               onFilterChange={setFilters}
@@ -80,79 +80,79 @@ const EquipmentPage = () => {
             />
           </aside>
 
-          <main className="equipment-main">
-        {loading && (
-          <div className="loading-state">
-            <div className="spinner"></div>
-            <p>Loading instruments...</p>
-          </div>
-        )}
+          <main className="main">
+            {loading && (
+              <div className="loading-state">
+                <div className="spinner"></div>
+                <p>Loading instruments...</p>
+              </div>
+            )}
 
-        {error && (
-          <div className="error-state">
-            <p>{error}</p>
-            <button onClick={fetchInstruments} className="btn btn-primary">
-              Try Again
-            </button>
-          </div>
-        )}
-
-        {!loading && !error && instruments.length === 0 && (
-          <div className="empty-state">
-            <p>No instruments found matching your criteria.</p>
-            <button
-              onClick={() => {
-                setFilters({ search: '', category: '', availability: '' });
-                handleSearch();
-              }}
-              className="btn btn-secondary"
-            >
-              Clear Filters
-            </button>
-          </div>
-        )}
-
-        {!loading && !error && instruments.length > 0 && (
-          <>
-            <div className="results-info">
-              Showing {instruments.length} of {pagination.total} instruments
-            </div>
-
-            <div className="equipment-grid">
-              {instruments.map((instrument) => (
-                <EquipmentCard key={instrument._id} instrument={instrument} />
-              ))}
-            </div>
-
-            {pagination.pages > 1 && (
-              <div className="pagination">
-                <button
-                  onClick={() => handlePageChange(pagination.page - 1)}
-                  disabled={pagination.page === 1}
-                  className="btn btn-secondary"
-                >
-                  Previous
-                </button>
-
-                <span className="pagination-info">
-                  Page {pagination.page} of {pagination.pages}
-                </span>
-
-                <button
-                  onClick={() => handlePageChange(pagination.page + 1)}
-                  disabled={pagination.page === pagination.pages}
-                  className="btn btn-secondary"
-                >
-                  Next
+            {error && (
+              <div className="error-state">
+                <p>{error}</p>
+                <button onClick={fetchInstruments} className="btn btn-primary">
+                  Try Again
                 </button>
               </div>
             )}
-          </>
-        )}
+
+            {!loading && !error && instruments.length === 0 && (
+              <div className="empty-state">
+                <p>No instruments found matching your criteria.</p>
+                <button
+                  onClick={() => {
+                    setFilters({ search: '', category: '', availability: '' });
+                    handleSearch();
+                  }}
+                  className="btn btn-secondary"
+                >
+                  Clear Filters
+                </button>
+              </div>
+            )}
+
+            {!loading && !error && instruments.length > 0 && (
+              <>
+                <div className="results-info">
+                  Showing {instruments.length} of {pagination.total} instruments
+                </div>
+
+                <div className="equipment-grid">
+                  {instruments.map((instrument) => (
+                    <EquipmentCard key={instrument._id} instrument={instrument} />
+                  ))}
+                </div>
+
+                {pagination.pages > 1 && (
+                  <div className="pagination">
+                    <button
+                      onClick={() => handlePageChange(pagination.page - 1)}
+                      disabled={pagination.page === 1}
+                      className="btn btn-secondary"
+                    >
+                      Previous
+                    </button>
+
+                    <span className="pagination-info">
+                      Page {pagination.page} of {pagination.pages}
+                    </span>
+
+                    <button
+                      onClick={() => handlePageChange(pagination.page + 1)}
+                      disabled={pagination.page === pagination.pages}
+                      className="btn btn-secondary"
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
           </main>
         </div>
       </div>
-    </MainLayout>
+    </NoFooterLayout>
   );
 };
 

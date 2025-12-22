@@ -1,0 +1,234 @@
+/* Configuration Status Component Styles */
+.config-status {
+  padding: var(--space-3);
+  border-radius: var(--radius-base);
+  border: 1px solid var(--color-border-primary);
+  background: var(--color-bg-primary);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--space-4);
+}
+
+.config-status.loading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-secondary);
+}
+
+.config-status.success {
+  border-color: var(--color-success);
+  background: var(--color-success-bg);
+}
+
+.config-status.warning {
+  border-color: var(--color-warning);
+  background: var(--color-warning-bg);
+}
+
+.config-status.error {
+  border-color: var(--color-error);
+  background: var(--color-error-bg);
+}
+
+/* Status Indicator */
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-dot.success {
+  background: var(--color-success);
+}
+
+.status-dot.warning {
+  background: var(--color-warning);
+}
+
+.status-dot.error {
+  background: var(--color-error);
+}
+
+.status-text {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+/* Status Details */
+.status-details {
+  border-top: 1px solid var(--color-border-secondary);
+  padding-top: var(--space-3);
+}
+
+.status-section {
+  margin-bottom: var(--space-4);
+}
+
+.status-section:last-child {
+  margin-bottom: 0;
+}
+
+.status-section h4 {
+  margin: 0 0 var(--space-2) 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.status-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-1) 0;
+  border-bottom: 1px solid var(--color-border-tertiary);
+}
+
+.status-item:last-child {
+  border-bottom: none;
+}
+
+.status-label {
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.status-value {
+  color: var(--color-text-primary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+}
+
+.status-item.success .status-value {
+  color: var(--color-success);
+}
+
+.status-item.error .status-value {
+  color: var(--color-error);
+}
+
+/* Error and Warning Lists */
+.error-list,
+.warning-list {
+  margin-top: var(--space-2);
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+}
+
+.error-list {
+  background: var(--color-error-bg);
+  border: 1px solid var(--color-error);
+}
+
+.warning-list {
+  background: var(--color-warning-bg);
+  border: 1px solid var(--color-warning);
+}
+
+.error-list strong,
+.warning-list strong {
+  display: block;
+  margin-bottom: var(--space-1);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+.error-list ul,
+.warning-list ul {
+  margin: 0;
+  padding-left: var(--space-4);
+  font-size: var(--font-size-xs);
+}
+
+.error-list li,
+.warning-list li {
+  margin-bottom: var(--space-1);
+}
+
+.error-message {
+  margin-top: var(--space-2);
+  padding: var(--space-2);
+  background: var(--color-error-bg);
+  border: 1px solid var(--color-error);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+}
+
+.error-message strong {
+  color: var(--color-error);
+}
+
+/* Troubleshooting Section */
+.troubleshooting {
+  border-top: 1px solid var(--color-border-secondary);
+  padding-top: var(--space-3);
+}
+
+.troubleshooting ul {
+  margin: 0;
+  padding-left: var(--space-4);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.troubleshooting li {
+  margin-bottom: var(--space-1);
+}
+
+/* Loading Spinner */
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--color-border-secondary);
+  border-top: 2px solid var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .config-status {
+    padding: var(--space-2);
+    font-size: var(--font-size-xs);
+  }
+
+  .status-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
+  }
+
+  .status-value {
+    word-break: break-all;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .config-status {
+    border-width: 2px;
+  }
+
+  .status-dot {
+    border: 1px solid var(--color-text-primary);
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .loading-spinner {
+    animation: none;
+  }
+}

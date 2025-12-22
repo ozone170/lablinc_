@@ -68,8 +68,8 @@ const MsmeDashboard = () => {
   return (
     <div className="msme-dashboard">
       <div className="dashboard-header">
-        <h3 style={{ color: 'white' }}>My Bookings</h3>
-        <p style={{ color: 'white' }}>View and manage your equipment bookings</p>
+        <h3 style={{ color: 'black' }}>My Bookings</h3>
+        <p style={{ color: 'black' }}>View and manage your equipment bookings</p>
       </div>
 
       {error && <div className="error-message">{error}</div>}

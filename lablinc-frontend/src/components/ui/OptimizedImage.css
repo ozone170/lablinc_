@@ -1,0 +1,331 @@
+/* Optimized Image Component Styles */
+.optimized-image-container {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-base);
+}
+
+.optimized-image-container.loading {
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-secondary) 25%,
+    var(--color-bg-tertiary) 50%,
+    var(--color-bg-secondary) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.optimized-image-container.loaded {
+  background: transparent;
+}
+
+.optimized-image-container.error {
+  background: var(--color-error-bg);
+  border: 1px solid var(--color-error);
+}
+
+/* Main Image */
+.optimized-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: opacity var(--duration-normal) var(--ease-out);
+}
+
+/* Placeholder Image */
+.image-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.6;
+  z-index: 1;
+}
+
+.optimized-image-container.loaded .image-placeholder {
+  opacity: 0;
+  transition: opacity var(--duration-normal) var(--ease-out);
+}
+
+/* Loading State */
+.image-loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+
+.image-loading .loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--color-border-secondary);
+  border-top: 2px solid var(--color-primary);
+  border-radius: 50%;
+  animation: spin var(--duration-1000) var(--ease-linear) infinite;
+}
+
+/* Error State */
+.image-error {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+  text-align: center;
+  padding: var(--space-3);
+}
+
+.image-error svg {
+  opacity: 0.5;
+}
+
+.retry-button {
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-xs);
+  background: var(--color-error);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.retry-button:hover {
+  background: var(--color-error-hover);
+}
+
+/* Shimmer Animation */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Spin Animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Variant Styles */
+
+/* Avatar Variant */
+.optimized-image-avatar {
+  border-radius: 50%;
+  aspect-ratio: 1;
+}
+
+.optimized-image-avatar .optimized-image {
+  border-radius: 50%;
+}
+
+/* Hero Variant */
+.optimized-image-hero {
+  width: 100%;
+  min-height: 300px;
+  border-radius: var(--radius-lg);
+}
+
+.optimized-image-hero .optimized-image {
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Thumbnail Variant */
+.optimized-image-thumbnail {
+  aspect-ratio: 1;
+  border-radius: var(--radius-base);
+  border: 1px solid var(--color-border-secondary);
+}
+
+.optimized-image-thumbnail:hover {
+  border-color: var(--color-border-primary);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+/* Card Variant */
+.optimized-image-card {
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.optimized-image-card .optimized-image {
+  transition: transform var(--duration-normal) var(--ease-out);
+}
+
+.optimized-image-card:hover .optimized-image {
+  transform: scale(1.05);
+}
+
+/* Responsive Behavior */
+@media (max-width: 768px) {
+  .optimized-image-hero {
+    min-height: 200px;
+  }
+
+  .image-loading .loading-spinner {
+    width: 20px;
+    height: 20px;
+  }
+
+  .image-error {
+    font-size: var(--font-size-xs);
+    padding: var(--space-2);
+  }
+
+  .image-error svg {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .optimized-image-container {
+    border: 1px solid var(--color-border-primary);
+  }
+
+  .optimized-image-container.error {
+    border-width: 2px;
+  }
+
+  .image-error {
+    background: var(--color-bg-primary);
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .optimized-image-container.loading {
+    animation: none;
+    background: var(--color-bg-secondary);
+  }
+
+  .image-loading .loading-spinner {
+    animation: none;
+    border-top-color: var(--color-primary);
+  }
+
+  .optimized-image {
+    transition: none;
+  }
+
+  .optimized-image-card:hover .optimized-image {
+    transform: none;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .optimized-image-container.loading {
+    background: white;
+    animation: none;
+  }
+
+  .image-loading,
+  .image-placeholder {
+    display: none;
+  }
+
+  .optimized-image {
+    opacity: 1 !important;
+  }
+}
+
+/* Focus States for Interactive Images */
+.optimized-image-container[tabindex] {
+  cursor: pointer;
+}
+
+.optimized-image-container[tabindex]:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-border-focus);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* Loading Performance Optimization */
+.optimized-image-container.lazy {
+  will-change: var(--will-change-opacity);
+}
+
+.optimized-image-container.loaded {
+  will-change: var(--will-change-auto);
+}
+
+/* Aspect Ratio Utilities */
+.aspect-square {
+  aspect-ratio: 1;
+}
+
+.aspect-video {
+  aspect-ratio: 16/9;
+}
+
+.aspect-photo {
+  aspect-ratio: 4/3;
+}
+
+.aspect-portrait {
+  aspect-ratio: 3/4;
+}
+
+/* Object Fit Utilities */
+.object-cover .optimized-image {
+  object-fit: cover;
+}
+
+.object-contain .optimized-image {
+  object-fit: contain;
+}
+
+.object-fill .optimized-image {
+  object-fit: fill;
+}
+
+.object-scale-down .optimized-image {
+  object-fit: scale-down;
+}
+
+/* Position Utilities */
+.object-center .optimized-image {
+  object-position: center;
+}
+
+.object-top .optimized-image {
+  object-position: top;
+}
+
+.object-bottom .optimized-image {
+  object-position: bottom;
+}
+
+.object-left .optimized-image {
+  object-position: left;
+}
+
+.object-right .optimized-image {
+  object-position: right;
+}

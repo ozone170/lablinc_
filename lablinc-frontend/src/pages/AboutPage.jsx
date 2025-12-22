@@ -1,4 +1,4 @@
-import MainLayout from '../components/layout/MainLayout';
+import NoFooterLayout from '../components/layout/NoFooterLayout';
 import './AboutPage.css';
 
 const AboutPage = () => {
@@ -9,7 +9,7 @@ const AboutPage = () => {
   ];
 
   return (
-    <MainLayout>
+    <NoFooterLayout>
       <div className="container">
         <section className="hero">
           <h1 style={{ color: 'white' }}>About LabLinc</h1>
@@ -46,7 +46,7 @@ const AboutPage = () => {
           </div>
         </section>
       </div>
-    </MainLayout>
+    </NoFooterLayout>
   );
 };
 

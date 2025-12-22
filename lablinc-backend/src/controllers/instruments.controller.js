@@ -7,7 +7,10 @@ const asyncHandler = require('../utils/asyncHandler');
 const getInstruments = asyncHandler(async (req, res) => {
   const { search, category, availability, page = 1, limit = 10 } = req.query;
 
-  const query = { status: 'active' };
+  const query = { 
+    status: 'active',
+    deletedAt: null
+  };
 
   // Search filter
   if (search) {
@@ -54,7 +57,8 @@ const getInstruments = asyncHandler(async (req, res) => {
 const getInstrument = asyncHandler(async (req, res) => {
   const instrument = await Instrument.findOne({
     _id: req.params.id,
-    status: 'active'
+    status: 'active',
+    deletedAt: null
   }).populate('owner', 'name email organization');
 
   if (!instrument) {
@@ -268,6 +272,7 @@ const deleteInstrument = asyncHandler(async (req, res) => {
 
   // Soft delete
   instrument.status = 'deleted';
+  instrument.deletedAt = new Date();
   await instrument.save();
 
   res.json({
@@ -283,4 +288,271 @@ module.exports = {
   createInstrument,
   updateInstrument,
   deleteInstrument
+};
+
+// @desc    Get featured instruments
+// @route   GET /api/instruments/featured
+// @access  Public
+const getFeaturedInstruments = asyncHandler(async (req, res) => {
+  const instruments = await Instrument.find({
+    $or: [{ isFeatured: true }, { featured: true }],
+    status: 'active',
+    deletedAt: null
+  })
+    .select('-__v')
+    .sort({ createdAt: -1 })
+    .limit(20);
+
+  res.json({
+    success: true,
+    data: { instruments }
+  });
+});
+
+// @desc    Get all categories
+// @route   GET /api/instruments/categories
+// @access  Public
+const getCategories = asyncHandler(async (req, res) => {
+  const categories = await Instrument.distinct('category', {
+    status: 'active',
+    deletedAt: null
+  });
+
+  res.json({
+    success: true,
+    data: { categories }
+  });
+});
+
+// @desc    Get my instruments
+// @route   GET /api/instruments/my
+// @access  Private
+const getMyInstruments = asyncHandler(async (req, res) => {
+  const { page = 1, limit = 10 } = req.query;
+
+  const query = {
+    owner: req.user.id,
+    deletedAt: null
+  };
+
+  const skip = (parseInt(page) - 1) * parseInt(limit);
+
+  const instruments = await Instrument.find(query)
+    .select('-__v')
+    .skip(skip)
+    .limit(parseInt(limit))
+    .sort({ createdAt: -1 });
+
+  const total = await Instrument.countDocuments(query);
+
+  res.json({
+    success: true,
+    data: {
+      instruments,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / parseInt(limit))
+      }
+    }
+  });
+});
+
+// @desc    Update instrument status
+// @route   PATCH /api/instruments/:id/status
+// @access  Private (owner/admin)
+const updateInstrumentStatus = asyncHandler(async (req, res) => {
+  const { availability } = req.body;
+
+  if (!availability) {
+    const error = new Error('Availability status is required');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const validStatuses = ['available', 'booked', 'maintenance', 'unavailable'];
+  if (!validStatuses.includes(availability)) {
+    const error = new Error(`Invalid status. Must be one of: ${validStatuses.join(', ')}`);
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const instrument = await Instrument.findOne({
+    _id: req.params.id,
+    deletedAt: null
+  });
+
+  if (!instrument) {
+    const error = new Error('Instrument not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  // Check ownership (owner or admin)
+  if (instrument.owner.toString() !== req.user.id.toString() && req.user.role !== 'admin') {
+    const error = new Error('Not authorized to update this instrument');
+    error.statusCode = 403;
+    throw error;
+  }
+
+  instrument.availability = availability;
+  await instrument.save();
+
+  res.json({
+    success: true,
+    message: 'Instrument status updated successfully',
+    data: { instrument }
+  });
+});
+
+module.exports = {
+  getInstruments,
+  getInstrument,
+  checkAvailability,
+  createInstrument,
+  updateInstrument,
+  deleteInstrument,
+  getFeaturedInstruments,
+  getCategories,
+  getMyInstruments,
+  updateInstrumentStatus
+};
+
+// @desc    Upload instrument photos
+// @route   POST /api/instruments/:id/photos
+// @access  Private (owner/admin)
+const uploadPhotos = asyncHandler(async (req, res) => {
+  const instrument = await Instrument.findOne({
+    _id: req.params.id,
+    deletedAt: null
+  });
+
+  if (!instrument) {
+    const error = new Error('Instrument not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  // Check ownership
+  if (instrument.owner.toString() !== req.user.id.toString() && req.user.role !== 'admin') {
+    const error = new Error('Not authorized to upload photos for this instrument');
+    error.statusCode = 403;
+    throw error;
+  }
+
+  if (!req.files || req.files.length === 0) {
+    const error = new Error('No files uploaded');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  try {
+    const storageService = require('../services/storage.service');
+    const uploadedPhotos = [];
+
+    // Upload each file to Cloudinary
+    for (const file of req.files) {
+      // Create a temporary file path or use buffer
+      const result = await storageService.uploadImage(file, 'lablinc/instruments');
+      uploadedPhotos.push(result.url);
+    }
+
+    // Add to instrument photos
+    instrument.photos = [...(instrument.photos || []), ...uploadedPhotos];
+    await instrument.save();
+
+    res.json({
+      success: true,
+      message: `${uploadedPhotos.length} photo(s) uploaded successfully`,
+      data: {
+        photos: uploadedPhotos,
+        instrument: instrument
+      }
+    });
+  } catch (error) {
+    console.error('Photo upload error:', error);
+    const err = new Error('Failed to upload photos');
+    err.statusCode = 500;
+    throw err;
+  }
+});
+
+// @desc    Delete instrument photo
+// @route   DELETE /api/instruments/:id/photos/:photoId
+// @access  Private (owner/admin)
+const deletePhoto = asyncHandler(async (req, res) => {
+  const { photoId } = req.params;
+
+  const instrument = await Instrument.findOne({
+    _id: req.params.id,
+    deletedAt: null
+  });
+
+  if (!instrument) {
+    const error = new Error('Instrument not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  // Check ownership
+  if (instrument.owner.toString() !== req.user.id.toString() && req.user.role !== 'admin') {
+    const error = new Error('Not authorized to delete photos for this instrument');
+    error.statusCode = 403;
+    throw error;
+  }
+
+  // Decode photoId (it might be URL encoded)
+  const decodedPhotoId = decodeURIComponent(photoId);
+
+  // Find the photo URL in the array
+  const photoIndex = instrument.photos.findIndex(photo => 
+    photo === decodedPhotoId || photo.includes(decodedPhotoId)
+  );
+
+  if (photoIndex === -1) {
+    const error = new Error('Photo not found in instrument');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const photoUrl = instrument.photos[photoIndex];
+
+  try {
+    // Try to delete from Cloudinary
+    const storageService = require('../services/storage.service');
+    const publicId = storageService.extractPublicId(photoUrl);
+    
+    if (publicId) {
+      await storageService.deleteImage(publicId);
+    }
+  } catch (error) {
+    console.error('Cloudinary delete error:', error);
+    // Continue even if Cloudinary delete fails
+  }
+
+  // Remove from array
+  instrument.photos.splice(photoIndex, 1);
+  await instrument.save();
+
+  res.json({
+    success: true,
+    message: 'Photo deleted successfully',
+    data: { instrument }
+  });
+});
+
+module.exports = {
+  getInstruments,
+  getInstrument,
+  checkAvailability,
+  createInstrument,
+  updateInstrument,
+  deleteInstrument,
+  getFeaturedInstruments,
+  getCategories,
+  getMyInstruments,
+  updateInstrumentStatus,
+  uploadPhotos,
+  deletePhoto
 };

@@ -7,6 +7,11 @@ export const adminAPI = {
     return response.data;
   },
 
+  createUser: async (userData) => {
+    const response = await apiClient.post('/admin/users', userData);
+    return response.data;
+  },
+
   updateUserStatus: async (userId, status) => {
     const response = await apiClient.patch(`/admin/users/${userId}/status`, { status });
     return response.data;
@@ -18,6 +23,16 @@ export const adminAPI = {
     return response.data;
   },
 
+  createInstrument: async (instrumentData) => {
+    const response = await apiClient.post('/admin/instruments', instrumentData);
+    return response.data;
+  },
+
+  getCategories: async () => {
+    const response = await apiClient.get('/admin/categories');
+    return response.data;
+  },
+
   toggleInstrumentFeature: async (instrumentId) => {
     const response = await apiClient.patch(`/admin/instruments/${instrumentId}/feature`);
     return response.data;
@@ -26,6 +41,11 @@ export const adminAPI = {
   // Booking Management
   getBookings: async (params = {}) => {
     const response = await apiClient.get('/admin/bookings', { params });
+    return response.data;
+  },
+
+  createBooking: async (bookingData) => {
+    const response = await apiClient.post('/admin/bookings', bookingData);
     return response.data;
   },
 
@@ -72,6 +92,48 @@ export const adminAPI = {
     const response = await apiClient.get(`/admin/bookings/${bookingId}/invoice`, {
       responseType: 'blob',
     });
+    return response.data;
+  },
+
+  // Delete user
+  deleteUser: async (userId, data = {}) => {
+    const response = await apiClient.delete(`/admin/users/${userId}`, { data });
+    return response.data;
+  },
+
+  // Reset user password
+  resetUserPassword: async (userId) => {
+    const response = await apiClient.post(`/admin/users/${userId}/reset-password`);
+    return response.data;
+  },
+
+  // Get revenue report
+  getRevenueReport: async (params = {}) => {
+    const response = await apiClient.get('/admin/reports/revenue', { params });
+    return response.data;
+  },
+
+  // Get usage report
+  getUsageReport: async () => {
+    const response = await apiClient.get('/admin/reports/usage');
+    return response.data;
+  },
+
+  // Get audit logs
+  getAuditLogs: async (params = {}) => {
+    const response = await apiClient.get('/admin/logs', { params });
+    return response.data;
+  },
+
+  // Delete instrument (hard delete)
+  deleteInstrument: async (instrumentId) => {
+    const response = await apiClient.delete(`/admin/instruments/${instrumentId}`);
+    return response.data;
+  },
+
+  // Send broadcast notification
+  sendBroadcast: async (data) => {
+    const response = await apiClient.post('/admin/broadcast', data);
     return response.data;
   },
 };

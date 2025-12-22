@@ -61,18 +61,24 @@ const createBooking = asyncHandler(async (req, res) => {
   const days = calculateDays(startDate, endDate);
   let rateType = 'daily';
   let rate = instrument.pricing.daily || 0;
-  let totalAmount = rate * days;
+  let baseAmount = rate * days;
 
   // Optimize pricing based on duration
   if (days >= 30 && instrument.pricing.monthly) {
     rateType = 'monthly';
     rate = instrument.pricing.monthly;
-    totalAmount = rate * Math.ceil(days / 30);
+    baseAmount = rate * Math.ceil(days / 30);
   } else if (days >= 7 && instrument.pricing.weekly) {
     rateType = 'weekly';
     rate = instrument.pricing.weekly;
-    totalAmount = rate * Math.ceil(days / 7);
+    baseAmount = rate * Math.ceil(days / 7);
   }
+
+  // Calculate complete pricing breakdown
+  // Base amount + Security Deposit (10%) + GST (18%)
+  const securityDeposit = Math.round(baseAmount * 0.10);
+  const gst = Math.round(baseAmount * 0.18);
+  const totalAmount = baseAmount + securityDeposit + gst;
 
   // Get user details
   const user = await User.findById(req.user.id);
@@ -89,7 +95,14 @@ const createBooking = asyncHandler(async (req, res) => {
     startDate,
     endDate,
     duration: { days },
-    pricing: { rateType, rate, totalAmount },
+    pricing: { 
+      rateType, 
+      rate, 
+      basePrice: baseAmount,
+      securityDeposit,
+      gst,
+      totalAmount 
+    },
     notes,
     agreementAccepted: true
   });
@@ -297,4 +310,301 @@ module.exports = {
   getBooking,
   updateBookingStatus,
   downloadInvoice
+};
+
+// @desc    Cancel booking
+// @route   PATCH /api/bookings/:id/cancel
+// @access  Private (booking owner or admin)
+const cancelBooking = asyncHandler(async (req, res) => {
+  const { reason } = req.body;
+
+  const booking = await Booking.findById(req.params.id);
+
+  if (!booking) {
+    const error = new Error('Booking not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  // Check authorization (booking user or admin)
+  const isAuthorized = 
+    booking.user.toString() === req.user.id.toString() ||
+    req.user.role === 'admin';
+
+  if (!isAuthorized) {
+    const error = new Error('Not authorized to cancel this booking');
+    error.statusCode = 403;
+    throw error;
+  }
+
+  // Check if booking can be cancelled
+  if (booking.status === 'completed') {
+    const error = new Error('Cannot cancel a completed booking');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (booking.status === 'cancelled') {
+    const error = new Error('Booking is already cancelled');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  // Update status
+  booking.status = 'cancelled';
+  
+  // Add to status history
+  if (!booking.statusHistory) {
+    booking.statusHistory = [];
+  }
+  booking.statusHistory.push({
+    status: 'cancelled',
+    changedBy: req.user.id,
+    changedAt: new Date(),
+    note: reason || 'Cancelled by user'
+  });
+
+  await booking.save();
+
+  // Send notification
+  const user = await User.findById(booking.user);
+  await notifyBookingCancelled(booking, user);
+
+  res.json({
+    success: true,
+    message: 'Booking cancelled successfully',
+    data: { booking }
+  });
+});
+
+// @desc    Get upcoming bookings
+// @route   GET /api/bookings/upcoming
+// @access  Private
+const getUpcomingBookings = asyncHandler(async (req, res) => {
+  const { page = 1, limit = 10 } = req.query;
+
+  let query = {
+    startDate: { $gt: new Date() },
+    status: { $in: ['pending', 'confirmed'] }
+  };
+
+  // Filter based on role
+  if (req.user.role === 'msme') {
+    query.user = req.user.id;
+  } else if (req.user.role === 'institute') {
+    query.owner = req.user.id;
+  }
+
+  const skip = (parseInt(page) - 1) * parseInt(limit);
+
+  const bookings = await Booking.find(query)
+    .populate('instrument', 'name category photos')
+    .populate('user', 'name email organization')
+    .populate('owner', 'name email organization')
+    .sort({ startDate: 1 })
+    .skip(skip)
+    .limit(parseInt(limit));
+
+  const total = await Booking.countDocuments(query);
+
+  res.json({
+    success: true,
+    data: {
+      bookings,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / parseInt(limit))
+      }
+    }
+  });
+});
+
+// @desc    Get booking history
+// @route   GET /api/bookings/history
+// @access  Private
+const getBookingHistory = asyncHandler(async (req, res) => {
+  const { page = 1, limit = 10 } = req.query;
+
+  let query = {
+    $or: [
+      { status: 'completed' },
+      { status: 'cancelled' },
+      { endDate: { $lt: new Date() } }
+    ]
+  };
+
+  // Filter based on role
+  if (req.user.role === 'msme') {
+    query.user = req.user.id;
+  } else if (req.user.role === 'institute') {
+    query.owner = req.user.id;
+  }
+
+  const skip = (parseInt(page) - 1) * parseInt(limit);
+
+  const bookings = await Booking.find(query)
+    .populate('instrument', 'name category photos')
+    .populate('user', 'name email organization')
+    .populate('owner', 'name email organization')
+    .sort({ endDate: -1 })
+    .skip(skip)
+    .limit(parseInt(limit));
+
+  const total = await Booking.countDocuments(query);
+
+  res.json({
+    success: true,
+    data: {
+      bookings,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / parseInt(limit))
+      }
+    }
+  });
+});
+
+// @desc    Add review to booking
+// @route   POST /api/bookings/:id/review
+// @access  Private (booking user only)
+const addReview = asyncHandler(async (req, res) => {
+  const { rating, comment } = req.body;
+
+  if (!rating || rating < 1 || rating > 5) {
+    const error = new Error('Rating must be between 1 and 5');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const booking = await Booking.findById(req.params.id);
+
+  if (!booking) {
+    const error = new Error('Booking not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  // Check authorization (only booking user can review)
+  if (booking.user.toString() !== req.user.id.toString()) {
+    const error = new Error('Only the booking user can add a review');
+    error.statusCode = 403;
+    throw error;
+  }
+
+  // Check if booking is completed
+  if (booking.status !== 'completed') {
+    const error = new Error('Can only review completed bookings');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  // Check if Review model exists, if not we'll store it in a simple way
+  // For now, we'll create a Review model reference
+  const Review = require('../models/Review');
+  
+  // Check if review already exists
+  const existingReview = await Review.findOne({
+    booking: booking._id,
+    user: req.user.id
+  });
+
+  if (existingReview) {
+    const error = new Error('You have already reviewed this booking');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  // Create review
+  const review = await Review.create({
+    user: req.user.id,
+    instrument: booking.instrument,
+    booking: booking._id,
+    rating,
+    comment: comment || ''
+  });
+
+  res.status(201).json({
+    success: true,
+    message: 'Review added successfully',
+    data: { review }
+  });
+});
+
+// @desc    Get booking timeline
+// @route   GET /api/bookings/:id/timeline
+// @access  Private
+const getBookingTimeline = asyncHandler(async (req, res) => {
+  const booking = await Booking.findById(req.params.id)
+    .populate('statusHistory.changedBy', 'name email');
+
+  if (!booking) {
+    const error = new Error('Booking not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  // Check authorization
+  const isAuthorized = 
+    booking.user.toString() === req.user.id.toString() ||
+    booking.owner.toString() === req.user.id.toString() ||
+    req.user.role === 'admin';
+
+  if (!isAuthorized) {
+    const error = new Error('Not authorized to view this booking timeline');
+    error.statusCode = 403;
+    throw error;
+  }
+
+  // Build timeline from status history and booking data
+  const timeline = [
+    {
+      status: 'created',
+      timestamp: booking.createdAt,
+      note: 'Booking created'
+    }
+  ];
+
+  // Add status history
+  if (booking.statusHistory && booking.statusHistory.length > 0) {
+    booking.statusHistory.forEach(history => {
+      timeline.push({
+        status: history.status,
+        timestamp: history.changedAt,
+        changedBy: history.changedBy,
+        note: history.note
+      });
+    });
+  }
+
+  // Sort by timestamp
+  timeline.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+  res.json({
+    success: true,
+    data: {
+      booking: {
+        id: booking._id,
+        instrumentName: booking.instrumentName,
+        currentStatus: booking.status
+      },
+      timeline
+    }
+  });
+});
+
+module.exports = {
+  createBooking,
+  getMyBookings,
+  getBooking,
+  updateBookingStatus,
+  downloadInvoice,
+  cancelBooking,
+  getUpcomingBookings,
+  getBookingHistory,
+  addReview,
+  getBookingTimeline
 };

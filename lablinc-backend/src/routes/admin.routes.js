@@ -11,7 +11,14 @@ const {
   getPartnerApplications,
   updatePartnerApplication,
   getContactMessages,
-  updateContactMessage
+  updateContactMessage,
+  deleteUser,
+  resetUserPassword,
+  getRevenueReport,
+  getUsageReport,
+  getAuditLogs,
+  deleteInstrument,
+  sendBroadcast
 } = require('../controllers/admin.controller');
 const authMiddleware = require('../middlewares/auth.middleware');
 const requireRole = require('../middlewares/role.middleware');
@@ -66,5 +73,29 @@ router.patch('/partners/:id', updatePartnerValidation, validate, updatePartnerAp
 // Contact messages
 router.get('/contacts', getContactMessages);
 router.patch('/contacts/:id', updateContactValidation, validate, updateContactMessage);
+
+// Delete user
+router.delete('/users/:id', deleteUser);
+
+// Reset user password
+router.post('/users/:id/reset-password', resetUserPassword);
+
+// Reports
+router.get('/reports/revenue', getRevenueReport);
+router.get('/reports/usage', getUsageReport);
+
+// Audit logs
+router.get('/logs', getAuditLogs);
+
+// Delete instrument (hard delete)
+router.delete('/instruments/:id', deleteInstrument);
+
+// Broadcast notification
+router.post('/broadcast', [
+  body('title').notEmpty().withMessage('Title is required'),
+  body('message').notEmpty().withMessage('Message is required'),
+  body('roles').optional().isArray().withMessage('Roles must be an array'),
+  body('userIds').optional().isArray().withMessage('User IDs must be an array')
+], validate, sendBroadcast);
 
 module.exports = router;

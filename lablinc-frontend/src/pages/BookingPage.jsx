@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import MainLayout from '../components/layout/MainLayout';
-import BookingForm from '../components/booking/BookingForm';
+import NoFooterLayout from '../components/layout/NoFooterLayout';
+import { BookingForm } from '../components/booking';
 import { instrumentsAPI } from '../api/instruments.api';
 import { bookingsAPI } from '../api/bookings.api';
 import { useAuth } from '../hooks/useAuth';
@@ -71,43 +71,43 @@ const BookingPage = () => {
 
   if (loading) {
     return (
-      <MainLayout>
+      <NoFooterLayout>
         <div className="loading-state">
           <div className="spinner"></div>
           <p>Loading instrument details...</p>
         </div>
-      </MainLayout>
+      </NoFooterLayout>
     );
   }
 
   if (error && !instrument) {
     return (
-      <MainLayout>
+      <NoFooterLayout>
         <div className="error-state">
           <p>{error}</p>
           <button onClick={() => navigate('/equipment')} className="btn btn-primary">
             Back to Equipment
           </button>
         </div>
-      </MainLayout>
+      </NoFooterLayout>
     );
   }
 
   if (success) {
     return (
-      <MainLayout>
+      <NoFooterLayout>
         <div className="success-state">
           <div className="success-icon">✓</div>
           <h2>Booking Request Created!</h2>
           <p>Your booking request has been sent to the institute for approval.</p>
           <p>Redirecting to dashboard...</p>
         </div>
-      </MainLayout>
+      </NoFooterLayout>
     );
   }
 
   return (
-    <MainLayout>
+    <NoFooterLayout>
       <div className="booking-page">
         <div className="booking-container">
           <div className="instrument-details">
@@ -206,7 +206,7 @@ const BookingPage = () => {
           </div>
         </div>
       </div>
-    </MainLayout>
+    </NoFooterLayout>
   );
 };
 

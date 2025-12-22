@@ -46,6 +46,9 @@ const bookingSchema = new mongoose.Schema({
       required: true
     },
     rate: { type: Number, required: true },
+    basePrice: { type: Number },
+    securityDeposit: { type: Number },
+    gst: { type: Number },
     totalAmount: { type: Number, required: true }
   },
   status: {
@@ -63,7 +66,22 @@ const bookingSchema = new mongoose.Schema({
     type: Boolean,
     required: true,
     default: false
-  }
+  },
+  statusHistory: [{
+    status: {
+      type: String,
+      enum: ['pending', 'confirmed', 'cancelled', 'completed', 'rejected']
+    },
+    changedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    changedAt: {
+      type: Date,
+      default: Date.now
+    },
+    note: String
+  }]
 }, {
   timestamps: true
 });

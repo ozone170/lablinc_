@@ -24,12 +24,40 @@ const HomePage = () => {
   useEffect(() => {
     const fetchFeaturedInstruments = async () => {
       try {
-        const response = await instrumentsAPI.getInstruments({ limit: 6 });
-        if (response.success) {
-          setFeaturedInstruments(response.data.instruments);
+        const response = await instrumentsAPI.getInstruments({ 
+          limit: 6,
+          featured: true // Try to get featured instruments first
+        });
+        
+        let instruments = [];
+        if (response.success && response.data && response.data.instruments) {
+          instruments = response.data.instruments;
+        } else if (response.data && Array.isArray(response.data)) {
+          instruments = response.data;
+        } else if (Array.isArray(response)) {
+          instruments = response;
         }
+        
+        // If no featured instruments, get regular instruments
+        if (instruments.length === 0) {
+          const fallbackResponse = await instrumentsAPI.getInstruments({ limit: 6 });
+          if (fallbackResponse.success && fallbackResponse.data && fallbackResponse.data.instruments) {
+            instruments = fallbackResponse.data.instruments;
+          }
+        }
+        
+        setFeaturedInstruments(instruments);
       } catch (error) {
         console.error('Error fetching featured instruments:', error);
+        // Try to fetch any instruments as fallback
+        try {
+          const fallbackResponse = await instrumentsAPI.getInstruments({ limit: 6 });
+          if (fallbackResponse.success && fallbackResponse.data && fallbackResponse.data.instruments) {
+            setFeaturedInstruments(fallbackResponse.data.instruments);
+          }
+        } catch (fallbackError) {
+          console.error('Fallback fetch also failed:', fallbackError);
+        }
       } finally {
         setLoading(false);
       }
@@ -120,34 +148,45 @@ const HomePage = () => {
         <h2>Featured Equipment</h2>
         {loading ? (
           <div className="featuredGrid">
-            <div className="featuredCard">
-              <div className="featuredImage"></div>
-              <h3>Loading...</h3>
-            </div>
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="featuredCard">
+                <div className="featuredImage">
+                  <div className="equipment-placeholder">⏳</div>
+                </div>
+                <div className="featuredInfo">
+                  <h3>Loading...</h3>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : featuredInstruments.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--color-text-secondary)' }}>
+            No featured equipment available at the moment.
           </div>
         ) : (
           <div className="featuredGrid">
             {featuredInstruments.map((instrument) => (
-              <Link to={`/equipment/${instrument._id}`} key={instrument._id} className="featuredCard">
+              <Link to={`/instrument/${instrument._id}`} key={instrument._id} className="featuredCard">
                 <div className="featuredImage">
                   {instrument.photos && instrument.photos.length > 0 ? (
-                    <img src={instrument.photos[0]} alt={instrument.name} loading="lazy" />
-                  ) : (
-                    <div style={{ 
-                      width: '100%', 
-                      height: '100%', 
-                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'white',
-                      fontSize: '3rem'
-                    }}>
-                      🔬
-                    </div>
-                  )}
+                    <img 
+                      src={instrument.photos[0]} 
+                      alt={instrument.name}
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'flex';
+                      }}
+                    />
+                  ) : null}
+                  <div className="equipment-placeholder" style={{ display: instrument.photos && instrument.photos.length > 0 ? 'none' : 'flex' }}>
+                    🔬
+                  </div>
                 </div>
-                <h3>{instrument.name}</h3>
+                <div className="featuredInfo">
+                  <h3>{instrument.name}</h3>
+                  <p className="featuredCategory">{instrument.category?.name || instrument.category || 'Uncategorized'}</p>
+                  <p className="featuredLocation">📍 {instrument.location || 'Location not specified'}</p>
+                </div>
               </Link>
             ))}
           </div>

@@ -1,4 +1,4 @@
-import MainLayout from '../components/layout/MainLayout';
+import NoFooterLayout from '../components/layout/NoFooterLayout';
 import MsmeDashboard from '../components/dashboard/MsmeDashboard';
 import InstituteDashboard from '../components/dashboard/InstituteDashboard';
 import AdminDashboardSummary from '../components/dashboard/AdminDashboardSummary';
@@ -25,9 +25,9 @@ const DashboardPage = () => {
   };
 
   return (
-    <MainLayout>
+    <NoFooterLayout>
       {renderDashboard()}
-    </MainLayout>
+    </NoFooterLayout>
   );
 };
 

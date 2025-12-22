@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { notificationsAPI } from '../../api/notifications.api';
 import { useAuth } from '../../hooks/useAuth';
@@ -12,6 +12,15 @@ const NotificationBell = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  const fetchUnreadCount = useCallback(async () => {
+    try {
+      const data = await notificationsAPI.getUnreadCount();
+      setUnreadCount(data.count);
+    } catch (error) {
+      console.error('Failed to fetch unread count:', error);
+    }
+  }, []);
+
   useEffect(() => {
     if (user) {
       fetchUnreadCount();
@@ -19,16 +28,7 @@ const NotificationBell = () => {
       const interval = setInterval(fetchUnreadCount, 30000);
       return () => clearInterval(interval);
     }
-  }, [user]);
-
-  const fetchUnreadCount = async () => {
-    try {
-      const data = await notificationsAPI.getUnreadCount();
-      setUnreadCount(data.count);
-    } catch (error) {
-      console.error('Failed to fetch unread count:', error);
-    }
-  };
+  }, [user, fetchUnreadCount]);
 
   const fetchRecentNotifications = async () => {
     setLoading(true);

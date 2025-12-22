@@ -3,6 +3,8 @@ import { useAuth } from '../hooks/useAuth';
 
 // Pages
 import HomePage from '../pages/HomePage';
+import LoginPage from '../pages/LoginPage';
+import SignupPage from '../pages/SignupPage';
 import AboutPage from '../pages/AboutPage';
 import EquipmentPage from '../pages/EquipmentPage';
 import InstrumentDetailsPage from '../pages/InstrumentDetailsPage';
@@ -12,6 +14,27 @@ import AdminPage from '../pages/AdminPage';
 import PartnerPage from '../pages/PartnerPage';
 import ContactPage from '../pages/ContactPage';
 import NotificationsPage from '../pages/NotificationsPage';
+import ProfilePage from '../pages/ProfilePage';
+import ProfileEditPage from '../pages/ProfileEditPage';
+import SettingsPage from '../pages/SettingsPage';
+import HelpPage from '../pages/HelpPage';
+import TermsPage from '../pages/TermsPage';
+import PrivacyPage from '../pages/PrivacyPage';
+import NotFoundPage from '../pages/NotFoundPage';
+
+// Instrument Pages
+import CreateInstrumentPage from '../pages/instruments/CreateInstrumentPage';
+import EditInstrumentPage from '../pages/instruments/EditInstrumentPage';
+
+// Booking Pages
+import BookingDetailPage from '../pages/bookings/BookingDetailPage';
+
+// Admin Detail Pages
+import BookingDetailsPage from '../pages/BookingDetailsPage';
+import UserDetailsPage from '../pages/UserDetailsPage';
+import InstrumentDetailsAdminPage from '../pages/InstrumentDetailsAdminPage';
+import PartnerApplicationDetailsPage from '../pages/PartnerApplicationDetailsPage';
+import ContactMessageDetailsPage from '../pages/ContactMessageDetailsPage';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
@@ -38,11 +61,16 @@ const AppRouter = () => {
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/equipment" element={<EquipmentPage />} />
         <Route path="/instrument/:instrumentId" element={<InstrumentDetailsPage />} />
         <Route path="/partner" element={<PartnerPage />} />
         <Route path="/contact" element={<ContactPage />} />
+        <Route path="/help" element={<HelpPage />} />
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
 
         {/* Protected Routes */}
         <Route
@@ -50,6 +78,14 @@ const AppRouter = () => {
           element={
             <ProtectedRoute>
               <BookingPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/bookings/:id"
+          element={
+            <ProtectedRoute>
+              <BookingDetailPage />
             </ProtectedRoute>
           }
         />
@@ -70,6 +106,50 @@ const AppRouter = () => {
           }
         />
         <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile/edit"
+          element={
+            <ProtectedRoute>
+              <ProfileEditPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <SettingsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Instrument Routes */}
+        <Route
+          path="/instruments/create"
+          element={
+            <ProtectedRoute allowedRoles={['msme', 'admin']}>
+              <CreateInstrumentPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/instruments/edit/:id"
+          element={
+            <ProtectedRoute allowedRoles={['msme', 'admin']}>
+              <EditInstrumentPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Admin Routes */}
+        <Route
           path="/admin"
           element={
             <ProtectedRoute allowedRoles={['admin']}>
@@ -77,9 +157,49 @@ const AppRouter = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/admin/bookings/:id"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <BookingDetailsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/users/:id"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <UserDetailsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/instruments/:id"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <InstrumentDetailsAdminPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/partners/:id"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <PartnerApplicationDetailsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/messages/:id"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <ContactMessageDetailsPage />
+            </ProtectedRoute>
+          }
+        />
 
         {/* 404 */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,6 +1,16 @@
 const express = require('express');
-const { body } = require('express-validator');
-const { register, login, refresh, logout } = require('../controllers/auth.controller');
+const { body, query } = require('express-validator');
+const { 
+  register, 
+  login, 
+  refresh, 
+  logout, 
+  getMe, 
+  forgotPassword, 
+  resetPassword, 
+  changePassword, 
+  verifyEmail 
+} = require('../controllers/auth.controller');
 const authMiddleware = require('../middlewares/auth.middleware');
 const validate = require('../middlewares/validate.middleware');
 const { authLimiter } = require('../middlewares/rateLimit.middleware');
@@ -27,10 +37,33 @@ const refreshValidation = [
   body('refreshToken').notEmpty().withMessage('Refresh token is required')
 ];
 
+const forgotPasswordValidation = [
+  body('email').isEmail().normalizeEmail().withMessage('Valid email is required')
+];
+
+const resetPasswordValidation = [
+  body('token').notEmpty().withMessage('Reset token is required'),
+  body('newPassword').isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+];
+
+const changePasswordValidation = [
+  body('oldPassword').notEmpty().withMessage('Current password is required'),
+  body('newPassword').isLength({ min: 6 }).withMessage('New password must be at least 6 characters')
+];
+
+const verifyEmailValidation = [
+  query('token').notEmpty().withMessage('Verification token is required')
+];
+
 // Routes
 router.post('/register', authLimiter, registerValidation, validate, register);
 router.post('/login', authLimiter, loginValidation, validate, login);
 router.post('/refresh', refreshValidation, validate, refresh);
 router.post('/logout', authMiddleware, logout);
+router.get('/me', authMiddleware, getMe);
+router.post('/forgot-password', authLimiter, forgotPasswordValidation, validate, forgotPassword);
+router.post('/reset-password', authLimiter, resetPasswordValidation, validate, resetPassword);
+router.post('/change-password', authMiddleware, changePasswordValidation, validate, changePassword);
+router.get('/verify-email', verifyEmailValidation, validate, verifyEmail);
 
 module.exports = router;

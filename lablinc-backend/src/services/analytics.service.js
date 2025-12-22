@@ -98,6 +98,49 @@ const getPlatformAnalytics = async () => {
     { $sort: { '_id.year': 1, '_id.month': 1 } }
   ]);
 
+  // Revenue breakdown by period
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+  const startOfYear = new Date(now.getFullYear(), 0, 1);
+
+  const [thisMonthRevenue, lastMonthRevenue, thisYearRevenue] = await Promise.all([
+    Booking.aggregate([
+      { 
+        $match: { 
+          status: { $in: ['confirmed', 'completed'] },
+          createdAt: { $gte: startOfMonth }
+        } 
+      },
+      { $group: { _id: null, total: { $sum: '$pricing.totalAmount' } } }
+    ]),
+    Booking.aggregate([
+      { 
+        $match: { 
+          status: { $in: ['confirmed', 'completed'] },
+          createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth }
+        } 
+      },
+      { $group: { _id: null, total: { $sum: '$pricing.totalAmount' } } }
+    ]),
+    Booking.aggregate([
+      { 
+        $match: { 
+          status: { $in: ['confirmed', 'completed'] },
+          createdAt: { $gte: startOfYear }
+        } 
+      },
+      { $group: { _id: null, total: { $sum: '$pricing.totalAmount' } } }
+    ])
+  ]);
+
+  const revenueBreakdown = {
+    thisMonth: thisMonthRevenue[0]?.total || 0,
+    lastMonth: lastMonthRevenue[0]?.total || 0,
+    thisYear: thisYearRevenue[0]?.total || 0
+  };
+
   // Instrument utilization
   const utilizationData = await Booking.aggregate([
     { $match: { status: { $in: ['confirmed', 'completed'] } } },
@@ -134,8 +177,16 @@ const getPlatformAnalytics = async () => {
     instruments: instrumentCounts,
     bookings: bookingCounts,
     revenue,
+    revenueBreakdown,
     bookingsPerMonth,
-    topInstruments: utilizationData
+    topInstruments: utilizationData,
+    // Flat properties for easy access
+    totalUsers: userCounts.total,
+    totalInstruments: instrumentCounts.total,
+    totalBookings: bookingCounts.total,
+    totalRevenue: revenue.total,
+    activeBookings: bookingCounts.confirmed,
+    pendingBookings: bookingCounts.pending
   };
 };
 

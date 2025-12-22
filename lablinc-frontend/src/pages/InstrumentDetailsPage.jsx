@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { instrumentsAPI } from '../api/instruments.api';
 import { useAuth } from '../hooks/useAuth';
-import MainLayout from '../components/layout/MainLayout';
+import NoFooterLayout from '../components/layout/NoFooterLayout';
 import './InstrumentDetailsPage.css';
 
 const InstrumentDetailsPage = () => {
@@ -46,24 +46,24 @@ const InstrumentDetailsPage = () => {
 
   if (loading) {
     return (
-      <MainLayout>
+      <NoFooterLayout>
         <div className="instrument-details-loading">Loading...</div>
-      </MainLayout>
+      </NoFooterLayout>
     );
   }
 
   if (error || !instrument) {
     return (
-      <MainLayout>
+      <NoFooterLayout>
         <div className="instrument-details-error">{error || 'Instrument not found'}</div>
-      </MainLayout>
+      </NoFooterLayout>
     );
   }
 
   const { name, category, description, pricing, availability, ownerName, location, photos, specifications } = instrument;
 
   return (
-    <MainLayout>
+    <NoFooterLayout>
       <div className="instrument-details-page">
         <div className="instrument-details-container">
           <div className="instrument-images">
@@ -158,7 +158,7 @@ const InstrumentDetailsPage = () => {
           </div>
         </div>
       </div>
-    </MainLayout>
+    </NoFooterLayout>
   );
 };
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import MainLayout from '../components/layout/MainLayout';
+import NoFooterLayout from '../components/layout/NoFooterLayout';
 import { contactAPI } from '../api/contact.api';
 import './ContactPage.css';
 
@@ -51,7 +51,7 @@ const ContactPage = () => {
   };
 
   return (
-    <MainLayout>
+    <NoFooterLayout>
       <div className="container">
         <h1>Contact Us</h1>
         
@@ -167,7 +167,7 @@ const ContactPage = () => {
           </div>
         </div>
       </div>
-    </MainLayout>
+    </NoFooterLayout>
   );
 };
 

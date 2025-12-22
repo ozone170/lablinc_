@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import MainLayout from '../components/layout/MainLayout';
+import NoFooterLayout from '../components/layout/NoFooterLayout';
 import { notificationsAPI } from '../api/notifications.api';
 import './NotificationsPage.css';
 
@@ -56,7 +56,7 @@ const NotificationsPage = () => {
   const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
-    <MainLayout>
+    <NoFooterLayout>
       <div className="notifications-page">
         <div className="notifications-header">
           <div>
@@ -152,7 +152,7 @@ const NotificationsPage = () => {
           )}
         </div>
       </div>
-    </MainLayout>
+    </NoFooterLayout>
   );
 };
 

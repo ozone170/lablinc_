@@ -5,7 +5,12 @@ const {
   getMyBookings,
   getBooking,
   updateBookingStatus,
-  downloadInvoice
+  downloadInvoice,
+  cancelBooking,
+  getUpcomingBookings,
+  getBookingHistory,
+  addReview,
+  getBookingTimeline
 } = require('../controllers/bookings.controller');
 const authMiddleware = require('../middlewares/auth.middleware');
 const requireRole = require('../middlewares/role.middleware');
@@ -44,5 +49,20 @@ router.patch('/:id/status', requireRole('institute', 'admin'), updateStatusValid
 
 // Download invoice
 router.get('/:id/invoice', downloadInvoice);
+
+// Cancel booking
+router.patch('/:id/cancel', cancelBooking);
+
+// Get upcoming bookings
+router.get('/upcoming', getUpcomingBookings);
+
+// Get booking history
+router.get('/history', getBookingHistory);
+
+// Add review
+router.post('/:id/review', addReview);
+
+// Get booking timeline
+router.get('/:id/timeline', getBookingTimeline);
 
 module.exports = router;

@@ -53,6 +53,14 @@ const instrumentSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  isFeatured: {
+    type: Boolean,
+    default: false
+  },
+  deletedAt: {
+    type: Date,
+    default: null
+  },
   status: {
     type: String,
     enum: ['active', 'inactive', 'deleted'],

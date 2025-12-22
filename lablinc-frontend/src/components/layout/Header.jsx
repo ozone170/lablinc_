@@ -1,32 +1,19 @@
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import LoginModal from '../auth/LoginModal';
-import RegisterModal from '../auth/RegisterModal';
 import NotificationBell from '../notifications/NotificationBell';
+import NavThemeToggle from '../ui/NavThemeToggle';
 import './Header.css';
 
 const Header = () => {
   const { isAuthenticated, user, logout } = useAuth();
   const location = useLocation();
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = async () => {
     await logout();
-    setMobileMenuOpen(false);
-  };
-
-  const openLogin = () => {
-    setShowRegisterModal(false);
-    setShowLoginModal(true);
-    setMobileMenuOpen(false);
-  };
-
-  const openRegister = () => {
-    setShowLoginModal(false);
-    setShowRegisterModal(true);
+    navigate('/', { replace: true });
     setMobileMenuOpen(false);
   };
 
@@ -114,25 +101,30 @@ const Header = () => {
             {isAuthenticated && (
               <div className="mobile-user-section">
                 <span className="mobile-user-name">{user?.name} ({user?.role})</span>
-                <button onClick={handleLogout} className="btn btn-secondary mobile-logout">
-                  Logout
-                </button>
+                <div className="mobile-user-actions">
+                  <NavThemeToggle />
+                  <button onClick={handleLogout} className="btn btn-secondary mobile-logout">
+                    Logout
+                  </button>
+                </div>
               </div>
             )}
 
             {!isAuthenticated && (
               <div className="mobile-auth-buttons">
-                <button onClick={openLogin} className="btn btn-secondary">
+                <NavThemeToggle />
+                <Link to="/login" className="btn btn-secondary" onClick={closeMobileMenu}>
                   Login
-                </button>
-                <button onClick={openRegister} className="btn btn-primary">
+                </Link>
+                <Link to="/signup" className="btn btn-primary" onClick={closeMobileMenu}>
                   Register
-                </button>
+                </Link>
               </div>
             )}
           </nav>
 
           <div className="auth-section">
+            <NavThemeToggle />
             {isAuthenticated ? (
               <div className="user-menu">
                 <NotificationBell />
@@ -145,29 +137,17 @@ const Header = () => {
               </div>
             ) : (
               <div className="auth-buttons">
-                <button onClick={openLogin} className="btn btn-secondary">
+                <Link to="/login" className="btn btn-secondary">
                   Login
-                </button>
-                <button onClick={openRegister} className="btn btn-primary">
+                </Link>
+                <Link to="/signup" className="btn btn-primary">
                   Register
-                </button>
+                </Link>
               </div>
             )}
           </div>
         </div>
       </header>
-
-      <LoginModal
-        isOpen={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
-        onSwitchToRegister={openRegister}
-      />
-
-      <RegisterModal
-        isOpen={showRegisterModal}
-        onClose={() => setShowRegisterModal(false)}
-        onSwitchToLogin={openLogin}
-      />
     </>
   );
 };

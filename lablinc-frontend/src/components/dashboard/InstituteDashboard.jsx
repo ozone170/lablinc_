@@ -135,8 +135,8 @@ const InstituteDashboard = () => {
   return (
     <div className="institute-dashboard">
       <div className="dashboard-header">
-        <h3 style={{ color: 'white' }}>Institute Dashboard</h3>
-        <p style={{ color: 'white' }}>Manage your instruments and bookings</p>
+        <h3 style={{ color: 'black' }}>Institute Dashboard</h3>
+        <p style={{ color: 'black' }}>Manage your instruments and bookings</p>
       </div>
 
       {error && <div className="error-message">{error}</div>}

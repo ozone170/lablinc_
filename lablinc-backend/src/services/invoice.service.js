@@ -234,13 +234,27 @@ const generateInvoice = async (booking, user, instrument) => {
       const col3 = 470;
 
       // Calculate fees with detailed breakdown
-      const baseAmount = booking.pricing.baseAmount || Math.round(booking.pricing.totalAmount / 1.28);
-      const securityFee = booking.pricing.securityFee || Math.round(baseAmount * 0.10);
+      // Base amount is rate × duration
+      const ratePerUnit = booking.pricing.rate || 0;
+      const baseAmount = booking.pricing.basePrice || (ratePerUnit * booking.duration.days);
+      
+      // Security deposit (10% of base)
+      const securityFee = booking.pricing.securityDeposit || Math.round(baseAmount * 0.10);
+      
+      // GST (18% of base)
       const gst = booking.pricing.gst || Math.round(baseAmount * 0.18);
+      
+      // Total = Base + Security + GST
+      // Example: ₹100 + ₹10 + ₹18 = ₹128
       const totalAmount = baseAmount + securityFee + gst;
       
-      // Calculate hourly/daily rate
-      const ratePerUnit = Math.round(baseAmount / booking.duration.days);
+      console.log('Invoice Calculation:', {
+        baseAmount,
+        securityFee,
+        gst,
+        totalAmount,
+        storedTotal: booking.pricing.totalAmount
+      });
 
       // Table with professional styling
       doc.roundedRect(50, tableTop, 510, 110, 4).fillAndStroke(lightGray, borderGray);

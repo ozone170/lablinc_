@@ -95,3 +95,114 @@ module.exports = {
   markAsRead,
   markAllAsRead
 };
+
+// @desc    Delete notification
+// @route   DELETE /api/notifications/:id
+// @access  Private
+const deleteNotification = asyncHandler(async (req, res) => {
+  const notification = await Notification.findOne({
+    _id: req.params.id,
+    recipient: req.user.id
+  });
+
+  if (!notification) {
+    const error = new Error('Notification not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  await notification.deleteOne();
+
+  res.json({
+    success: true,
+    message: 'Notification deleted successfully'
+  });
+});
+
+// @desc    Clear all notifications
+// @route   DELETE /api/notifications/clear-all
+// @access  Private
+const clearAllNotifications = asyncHandler(async (req, res) => {
+  const result = await Notification.deleteMany({ recipient: req.user.id });
+
+  res.json({
+    success: true,
+    message: `${result.deletedCount} notifications cleared successfully`
+  });
+});
+
+// @desc    Get notification preferences
+// @route   GET /api/notifications/preferences
+// @access  Private
+const getPreferences = asyncHandler(async (req, res) => {
+  const UserSettings = require('../models/UserSettings');
+  
+  let settings = await UserSettings.findOne({ user: req.user.id });
+
+  // Create default settings if not exists
+  if (!settings) {
+    settings = await UserSettings.create({ user: req.user.id });
+  }
+
+  res.json({
+    success: true,
+    data: {
+      preferences: settings.notificationPreferences,
+      language: settings.language,
+      theme: settings.theme
+    }
+  });
+});
+
+// @desc    Update notification preferences
+// @route   PUT /api/notifications/preferences
+// @access  Private
+const updatePreferences = asyncHandler(async (req, res) => {
+  const { notificationPreferences, language, theme } = req.body;
+  const UserSettings = require('../models/UserSettings');
+
+  let settings = await UserSettings.findOne({ user: req.user.id });
+
+  if (!settings) {
+    settings = await UserSettings.create({ user: req.user.id });
+  }
+
+  // Update preferences
+  if (notificationPreferences) {
+    settings.notificationPreferences = {
+      ...settings.notificationPreferences,
+      ...notificationPreferences
+    };
+  }
+
+  if (language) {
+    settings.language = language;
+  }
+
+  if (theme) {
+    settings.theme = theme;
+  }
+
+  await settings.save();
+
+  res.json({
+    success: true,
+    message: 'Preferences updated successfully',
+    data: {
+      preferences: settings.notificationPreferences,
+      language: settings.language,
+      theme: settings.theme
+    }
+  });
+});
+
+module.exports = {
+  getNotifications,
+  getUnreadCount,
+  markAsRead,
+  markAllAsRead,
+  deleteNotification,
+  clearAllNotifications,
+  getPreferences,
+  updatePreferences
+};

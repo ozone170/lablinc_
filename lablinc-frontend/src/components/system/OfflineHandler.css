@@ -1,0 +1,364 @@
+/* Offline Handler Styles */
+
+/* Offline Banner */
+.offline-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9998;
+  background: var(--color-warning);
+  color: white;
+  padding: var(--space-2) var(--space-4);
+  box-shadow: var(--shadow-sm);
+  animation: slide-down 0.3s ease-out;
+}
+
+.offline-banner-content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.offline-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.offline-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.offline-text strong {
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+}
+
+.offline-text span {
+  font-size: var(--font-size-xs);
+  opacity: 0.9;
+}
+
+.offline-status {
+  flex-shrink: 0;
+}
+
+/* Connection Indicator */
+.connection-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  position: relative;
+}
+
+.connection-indicator.online {
+  background: var(--color-success);
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);
+}
+
+.connection-indicator.offline {
+  background: var(--color-error);
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.3);
+  animation: pulse-offline 2s infinite;
+}
+
+@keyframes pulse-offline {
+  0%, 100% {
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+  }
+}
+
+/* Reconnected Toast */
+.reconnected-toast {
+  position: fixed;
+  top: var(--space-4);
+  right: var(--space-4);
+  z-index: 9999;
+  background: var(--color-success);
+  color: white;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-base);
+  box-shadow: var(--shadow-lg);
+  animation: slide-in-right 0.3s ease-out, fade-out 0.3s ease-in 2.7s forwards;
+}
+
+.reconnected-content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.reconnected-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Connection Status Container */
+.connection-status {
+  position: relative;
+}
+
+.connection-status.offline {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.connection-status.offline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(0, 0, 0, 0.05) 10px,
+    rgba(0, 0, 0, 0.05) 20px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Offline Content */
+.offline-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  min-height: 200px;
+}
+
+.offline-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.offline-message svg {
+  opacity: 0.5;
+}
+
+.offline-message span {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+/* Animations */
+@keyframes slide-down {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Offline Form States */
+.form-offline {
+  position: relative;
+}
+
+.form-offline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(1px);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.form-offline::after {
+  content: 'Offline - Form disabled';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--color-warning);
+  color: white;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-base);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Offline Button States */
+.btn.offline {
+  opacity: 0.5;
+  pointer-events: none;
+  position: relative;
+}
+
+.btn.offline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 4px,
+    rgba(255, 255, 255, 0.3) 4px,
+    rgba(255, 255, 255, 0.3) 8px
+  );
+  border-radius: inherit;
+}
+
+/* Offline Input States */
+.input-offline {
+  opacity: 0.6;
+  pointer-events: none;
+  background: var(--color-bg-secondary);
+}
+
+/* Network Status Indicator (small) */
+.network-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.network-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.network-status.online .network-status-dot {
+  background: var(--color-success);
+}
+
+.network-status.offline .network-status-dot {
+  background: var(--color-error);
+  animation: pulse-offline 2s infinite;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .offline-banner {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .offline-banner-content {
+    gap: var(--space-2);
+  }
+
+  .offline-text {
+    gap: 0;
+  }
+
+  .offline-text span {
+    display: none;
+  }
+
+  .reconnected-toast {
+    top: var(--space-3);
+    right: var(--space-3);
+    left: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .offline-content {
+    padding: var(--space-4);
+    min-height: 150px;
+  }
+
+  .offline-message {
+    gap: var(--space-2);
+  }
+
+  .offline-message svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .offline-banner {
+    border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+  }
+
+  .reconnected-toast {
+    border: 2px solid rgba(255, 255, 255, 0.5);
+  }
+
+  .connection-indicator {
+    border: 1px solid white;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .offline-banner {
+    animation: none;
+  }
+
+  .reconnected-toast {
+    animation: none;
+  }
+
+  .connection-indicator.offline {
+    animation: none;
+  }
+
+  .pulse-offline {
+    animation: none;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .offline-banner,
+  .reconnected-toast {
+    display: none;
+  }
+}

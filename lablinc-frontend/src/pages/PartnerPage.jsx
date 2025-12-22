@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import MainLayout from '../components/layout/MainLayout';
+import NoFooterLayout from '../components/layout/NoFooterLayout';
 import { partnerAPI } from '../api/partner.api';
 import './PartnerPage.css';
 
@@ -67,7 +67,7 @@ const PartnerPage = () => {
   };
 
   return (
-    <MainLayout>
+    <NoFooterLayout>
       <div className="container">
         <section className="hero">
           <h1 style={{ color: 'white' }}>Partner With LabLinc</h1>
@@ -207,7 +207,7 @@ const PartnerPage = () => {
           )}
         </section>
       </div>
-    </MainLayout>
+    </NoFooterLayout>
   );
 };
 

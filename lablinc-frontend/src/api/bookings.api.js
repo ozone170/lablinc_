@@ -32,4 +32,34 @@ export const bookingsAPI = {
     });
     return response.data;
   },
+
+  // Cancel booking
+  cancelBooking: async (id, reason) => {
+    const response = await apiClient.patch(`/bookings/${id}/cancel`, { reason });
+    return response.data;
+  },
+
+  // Get upcoming bookings
+  getUpcomingBookings: async (params = {}) => {
+    const response = await apiClient.get('/bookings/upcoming', { params });
+    return response.data;
+  },
+
+  // Get booking history
+  getBookingHistory: async (params = {}) => {
+    const response = await apiClient.get('/bookings/history', { params });
+    return response.data;
+  },
+
+  // Add review
+  addReview: async (id, review) => {
+    const response = await apiClient.post(`/bookings/${id}/review`, review);
+    return response.data;
+  },
+
+  // Get booking timeline
+  getBookingTimeline: async (id) => {
+    const response = await apiClient.get(`/bookings/${id}/timeline`);
+    return response.data;
+  },
 };

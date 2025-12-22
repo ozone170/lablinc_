@@ -6,8 +6,15 @@ const {
   checkAvailability,
   createInstrument,
   updateInstrument,
-  deleteInstrument
+  deleteInstrument,
+  getFeaturedInstruments,
+  getCategories,
+  getMyInstruments,
+  updateInstrumentStatus,
+  uploadPhotos,
+  deletePhoto
 } = require('../controllers/instruments.controller');
+const { multiple } = require('../middlewares/upload.middleware');
 const authMiddleware = require('../middlewares/auth.middleware');
 const requireRole = require('../middlewares/role.middleware');
 const validate = require('../middlewares/validate.middleware');
@@ -25,8 +32,13 @@ const createInstrumentValidation = [
 
 // Public routes
 router.get('/', getInstruments);
+router.get('/featured', getFeaturedInstruments);
+router.get('/categories', getCategories);
 router.get('/:id', getInstrument);
 router.get('/:id/availability', checkAvailability);
+
+// Protected routes - my instruments
+router.get('/my', authMiddleware, getMyInstruments);
 
 // Protected routes (institute/admin only)
 router.post(
@@ -50,6 +62,29 @@ router.delete(
   authMiddleware,
   requireRole('institute', 'admin'),
   deleteInstrument
+);
+
+router.patch(
+  '/:id/status',
+  authMiddleware,
+  requireRole('institute', 'admin'),
+  updateInstrumentStatus
+);
+
+// Photo upload routes
+router.post(
+  '/:id/photos',
+  authMiddleware,
+  requireRole('institute', 'admin'),
+  multiple('images', 5),
+  uploadPhotos
+);
+
+router.delete(
+  '/:id/photos/:photoId',
+  authMiddleware,
+  requireRole('institute', 'admin'),
+  deletePhoto
 );
 
 module.exports = router;

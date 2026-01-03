@@ -2,16 +2,23 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { authAPI } from '../api/auth.api';
+import { useToast } from '../hooks/useToast';
 import NoFooterLayout from '../components/layout/NoFooterLayout';
 import PasswordChangeForm from '../components/profile/PasswordChangeForm';
 import './ProfilePage.css';
 
 const ProfilePage = () => {
   const { user, refreshUser } = useAuth();
+  const { showToast } = useToast();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState(null);
   const [activeTab, setActiveTab] = useState('profile');
   const [error, setError] = useState('');
+  const [resendingVerification, setResendingVerification] = useState(false);
+  const [showOTPVerification, setShowOTPVerification] = useState(false);
+  const [emailOTP, setEmailOTP] = useState('');
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [otpError, setOtpError] = useState('');
 
   useEffect(() => {
     fetchProfile();
@@ -33,6 +40,57 @@ const ProfilePage = () => {
 
   const handlePasswordChangeSuccess = () => {
     setActiveTab('profile');
+  };
+
+  const handleResendVerification = async () => {
+    try {
+      setResendingVerification(true);
+      await authAPI.resendVerificationEmail(profile.email);
+      showToast('Verification email sent! Please check your inbox.', 'success');
+    } catch (error) {
+      showToast(error.response?.data?.message || 'Failed to resend verification email', 'error');
+    } finally {
+      setResendingVerification(false);
+    }
+  };
+
+  const handleSendOTPForVerification = async () => {
+    try {
+      setOtpLoading(true);
+      setOtpError('');
+      await authAPI.sendEmailOTP(profile.email);
+      setShowOTPVerification(true);
+      showToast('OTP sent to your email address', 'success');
+    } catch (error) {
+      setOtpError(error.response?.data?.message || 'Failed to send OTP');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const handleVerifyEmailOTP = async () => {
+    if (!emailOTP || emailOTP.length !== 6) {
+      setOtpError('Please enter a valid 6-digit OTP');
+      return;
+    }
+
+    try {
+      setOtpLoading(true);
+      setOtpError('');
+      await authAPI.verifyEmailOTP(profile.email, emailOTP);
+      
+      // Refresh profile to get updated verification status
+      await fetchProfile();
+      await refreshUser();
+      
+      setShowOTPVerification(false);
+      setEmailOTP('');
+      showToast('Email verified successfully!', 'success');
+    } catch (error) {
+      setOtpError(error.response?.data?.message || 'Invalid OTP. Please try again.');
+    } finally {
+      setOtpLoading(false);
+    }
   };
 
   const getRoleDisplayName = (role) => {
@@ -172,9 +230,91 @@ const ProfilePage = () => {
                     </div>
                     <div className="info-item">
                       <label>Email Verification</label>
-                      <span className={`verification-badge ${profile?.emailVerified ? 'verified' : 'unverified'}`}>
-                        {profile?.emailVerified ? '✅ Verified' : '❌ Not Verified'}
-                      </span>
+                      <div className="verification-status">
+                        <span className={`verification-badge ${profile?.emailVerified ? 'verified' : 'unverified'}`}>
+                          {profile?.emailVerified ? '✅ Verified' : '❌ Not Verified'}
+                        </span>
+                        {!profile?.emailVerified && (
+                          <div className="verification-actions">
+                            <button
+                              onClick={handleResendVerification}
+                              disabled={resendingVerification}
+                              className="btn btn-small btn-secondary"
+                            >
+                              {resendingVerification ? 'Sending...' : 'Resend Email'}
+                            </button>
+                            <span style={{ margin: '0 8px', color: '#6b7280' }}>or</span>
+                            <button
+                              onClick={handleSendOTPForVerification}
+                              disabled={otpLoading}
+                              className="btn btn-small btn-primary"
+                            >
+                              {otpLoading ? 'Sending...' : 'Verify with OTP'}
+                            </button>
+                          </div>
+                        )}
+                        
+                        {showOTPVerification && !profile?.emailVerified && (
+                          <div className="otp-verification-section" style={{ marginTop: '15px' }}>
+                            <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
+                              <div style={{ flex: 1 }}>
+                                <label style={{ fontSize: '14px', color: '#374151', marginBottom: '5px', display: 'block' }}>
+                                  Enter OTP sent to your email
+                                </label>
+                                <input
+                                  type="text"
+                                  placeholder="6-digit OTP"
+                                  value={emailOTP}
+                                  onChange={(e) => {
+                                    setEmailOTP(e.target.value.replace(/\D/g, '').slice(0, 6));
+                                    setOtpError('');
+                                  }}
+                                  maxLength={6}
+                                  style={{ 
+                                    width: '100%',
+                                    padding: '8px 12px',
+                                    border: '1px solid #d1d5db',
+                                    borderRadius: '6px',
+                                    textAlign: 'center',
+                                    letterSpacing: '2px',
+                                    fontSize: '16px'
+                                  }}
+                                />
+                              </div>
+                              <button
+                                onClick={handleVerifyEmailOTP}
+                                disabled={otpLoading || emailOTP.length !== 6}
+                                className="btn btn-small btn-primary"
+                              >
+                                {otpLoading ? 'Verifying...' : 'Verify'}
+                              </button>
+                            </div>
+                            {otpError && (
+                              <div style={{ color: '#ef4444', fontSize: '14px', marginTop: '5px' }}>
+                                {otpError}
+                              </div>
+                            )}
+                            <button
+                              onClick={() => {
+                                setShowOTPVerification(false);
+                                setEmailOTP('');
+                                setOtpError('');
+                              }}
+                              style={{ 
+                                background: 'none',
+                                border: 'none',
+                                color: '#6b7280',
+                                fontSize: '14px',
+                                marginTop: '10px',
+                                cursor: 'pointer',
+                                textDecoration: 'underline'
+                              }}
+                            >
+                              Cancel OTP verification
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                     <div className="info-item">
                       <label>Member Since</label>

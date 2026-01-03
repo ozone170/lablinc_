@@ -2,11 +2,24 @@ const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
 const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
 const { apiLimiter } = require('./middlewares/rateLimit.middleware');
 const errorHandler = require('./middlewares/error.middleware');
 const sanitizeInput = require('./middlewares/sanitize.middleware');
 
 const app = express();
+
+// Trust proxy for AWS ALB/CloudFront
+app.set('trust proxy', 1);
+
+// Handle X-Forwarded-Proto for HTTPS redirects
+app.use((req, res, next) => {
+  // Force HTTPS in production
+  if (process.env.NODE_ENV === 'production' && req.header('x-forwarded-proto') !== 'https') {
+    return res.redirect(`https://${req.header('host')}${req.url}`);
+  }
+  next();
+});
 
 // Security middleware
 app.use(helmet({
@@ -25,8 +38,10 @@ app.use(helmet({
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:5173'];
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, Postman, etc.)
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Allow requests with no origin (mobile apps, Postman, etc.) only in development
+    if (!origin && process.env.NODE_ENV !== 'production') {
+      callback(null, true);
+    } else if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
@@ -48,6 +63,9 @@ if (process.env.NODE_ENV === 'development') {
 // Body parsing with size limits
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Cookie parser for secure token handling
+app.use(cookieParser());
 
 // Prevent parameter pollution
 app.use((req, res, next) => {

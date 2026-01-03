@@ -4,6 +4,7 @@ const {
   createUser,
   getUsers,
   updateUserStatus,
+  verifyUserEmail,
   createInstrument,
   getCategories,
   getInstruments,
@@ -39,7 +40,7 @@ const createUserValidation = [
   body('name').trim().notEmpty().withMessage('Name is required'),
   body('email').isEmail().withMessage('Valid email is required'),
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
-  body('role').optional().isIn(['user', 'admin', 'msme', 'institute']).withMessage('Invalid role'),
+  body('role').optional().isIn(['msme', 'institute', 'admin']).withMessage('Invalid role'),
   body('status').optional().isIn(['active', 'inactive', 'suspended']).withMessage('Invalid status')
 ];
 
@@ -83,6 +84,7 @@ const updateContactValidation = [
 router.post('/users', createUserValidation, validate, createUser);
 router.get('/users', getUsers);
 router.patch('/users/:id/status', updateUserStatusValidation, validate, updateUserStatus);
+router.patch('/users/:id/verify-email', verifyUserEmail);
 
 // Instrument management
 router.post('/instruments', createInstrumentValidation, validate, createInstrument);

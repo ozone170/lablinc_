@@ -144,14 +144,27 @@
 }
 
 @media (max-width: 768px) {
-  .container {
-    padding: 1rem;
-    margin: 1rem auto;
+  .hero-section {
+    height: 40vh;
+    min-height: 250px;
   }
 
-  .container h1 {
-    font-size: 1.75rem;
-    margin-bottom: 2rem;
+  .hero-content h1 {
+    font-size: 2rem;
+  }
+
+  .hero-content p {
+    font-size: 1rem;
+  }
+
+  .logo {
+    width: 50px;
+    height: 50px;
+    font-size: 18px;
+  }
+
+  .container {
+    padding: 2rem 1rem;
   }
 
   .content {
@@ -176,12 +189,16 @@
   .formGroup input,
   .formGroup select,
   .formGroup textarea {
-    font-size: 0.95rem;
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: 0.875rem;
+    min-height: 48px; /* Touch-friendly */
   }
 
   .submitBtn {
     width: 100%;
-    padding: 0.875rem;
+    padding: 1rem;
+    font-size: 1rem;
+    min-height: 48px; /* Touch-friendly */
   }
 
   .infoItem h3 {
@@ -192,48 +209,25 @@
   .infoItem a {
     font-size: 0.9rem;
   }
-}
 
-@media (max-width: 768px) {
-  .contact-page {
-    padding: 1rem;
+  .social {
+    flex-direction: row;
+    gap: 1rem;
+    justify-content: center;
   }
 
-  .contact-container {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-    padding: 1rem;
+  .social a {
+    padding: 0.5rem 1rem;
+    background: #f3f4f6;
+    border-radius: 6px;
+    text-decoration: none;
+    color: #667eea;
+    font-weight: 500;
+    transition: all 0.2s ease;
   }
 
-  .contact-header h1 {
-    font-size: 1.75rem;
-  }
-
-  .contact-header p {
-    font-size: 0.95rem;
-  }
-
-  .contact-info,
-  .contact-form {
-    padding: 1.25rem;
-  }
-
-  .contact-info h2,
-  .contact-form h2 {
-    font-size: 1.3rem;
-  }
-
-  .info-item {
-    font-size: 0.9rem;
-  }
-
-  .form-group input,
-  .form-group textarea {
-    font-size: 0.95rem;
-  }
-
-  .btn-submit {
-    width: 100%;
-    padding: 1rem;
+  .social a:hover {
+    background: #667eea;
+    color: white;
   }
 }

@@ -1,6 +1,11 @@
 require('dotenv').config();
+const validateEnvironment = require('./utils/validateEnv');
+const logger = require('./utils/logger');
 const app = require('./app');
 const connectDB = require('./config/db');
+
+// Validate environment variables
+validateEnvironment();
 
 const PORT = process.env.PORT || 5000;
 
@@ -9,5 +14,9 @@ connectDB();
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
+  logger.info('Server started', {
+    port: PORT,
+    environment: process.env.NODE_ENV,
+    nodeVersion: process.version
+  });
 });

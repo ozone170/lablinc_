@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import AuthErrorHandler from '../components/auth/AuthErrorHandler';
 
 // Pages
 import HomePage from '../pages/HomePage';
@@ -20,6 +21,10 @@ import SettingsPage from '../pages/SettingsPage';
 import HelpPage from '../pages/HelpPage';
 import TermsPage from '../pages/TermsPage';
 import PrivacyPage from '../pages/PrivacyPage';
+import VerifyEmailPage from '../pages/VerifyEmailPage';
+import ForgotPasswordPage from '../pages/ForgotPasswordPage';
+import ResetPasswordPage from '../pages/ResetPasswordPage';
+import ChangePasswordPage from '../pages/ChangePasswordPage';
 import NotFoundPage from '../pages/NotFoundPage';
 
 // Instrument Pages
@@ -58,7 +63,8 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
 const AppRouter = () => {
   return (
     <BrowserRouter>
-      <Routes>
+      <AuthErrorHandler>
+        <Routes>
         {/* Public Routes */}
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -68,6 +74,9 @@ const AppRouter = () => {
         <Route path="/instrument/:instrumentId" element={<InstrumentDetailsPage />} />
         <Route path="/partner" element={<PartnerPage />} />
         <Route path="/contact" element={<ContactPage />} />
+        <Route path="/verify-email" element={<VerifyEmailPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/help" element={<HelpPage />} />
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
@@ -126,6 +135,14 @@ const AppRouter = () => {
           element={
             <ProtectedRoute>
               <SettingsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/change-password"
+          element={
+            <ProtectedRoute>
+              <ChangePasswordPage />
             </ProtectedRoute>
           }
         />
@@ -201,6 +218,7 @@ const AppRouter = () => {
         {/* 404 */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
+      </AuthErrorHandler>
     </BrowserRouter>
   );
 };

@@ -14,8 +14,8 @@ export const authAPI = {
   },
 
   // Refresh access token
-  refresh: async (refreshToken) => {
-    const response = await apiClient.post('/auth/refresh', { refreshToken });
+  refresh: async () => {
+    const response = await apiClient.post('/auth/refresh');
     return response.data;
   },
 
@@ -61,6 +61,48 @@ export const authAPI = {
   // Verify email
   verifyEmail: async (token) => {
     const response = await apiClient.get('/auth/verify-email', { params: { token } });
+    return response.data;
+  },
+
+  // Resend verification email
+  resendVerificationEmail: async (email) => {
+    const response = await apiClient.post('/auth/resend-verification', { email });
+    return response.data;
+  },
+
+  // Request OTP for password change
+  requestPasswordChangeOTP: async () => {
+    const response = await apiClient.post('/auth/request-password-change-otp');
+    return response.data;
+  },
+
+  // Change password with OTP
+  changePasswordWithOTP: async (otp, newPassword) => {
+    const response = await apiClient.post('/auth/change-password-with-otp', { otp, newPassword });
+    return response.data;
+  },
+
+  // Send email OTP for registration (before user exists)
+  sendRegistrationOTP: async (email) => {
+    const response = await apiClient.post('/auth/send-registration-otp', { email });
+    return response.data;
+  },
+
+  // Verify registration OTP (before user exists)
+  verifyRegistrationOTP: async (email, otp) => {
+    const response = await apiClient.post('/auth/verify-registration-otp', { email, otp });
+    return response.data;
+  },
+
+  // Send email OTP for verification
+  sendEmailOTP: async (email) => {
+    const response = await apiClient.post('/auth/send-email-otp', { email });
+    return response.data;
+  },
+
+  // Verify email OTP
+  verifyEmailOTP: async (email, otp) => {
+    const response = await apiClient.post('/auth/verify-email-otp', { email, otp });
     return response.data;
   },
 };

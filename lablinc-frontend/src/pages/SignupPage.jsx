@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { authAPI } from '../api/auth.api';
 import MainLayout from '../components/layout/MainLayout';
 import './LoginPage.css';
 
@@ -18,6 +19,11 @@ const SignupPage = () => {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [emailOTP, setEmailOTP] = useState('');
+  const [isOTPSent, setIsOTPSent] = useState(false);
+  const [isOTPVerified, setIsOTPVerified] = useState(false);
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [otpError, setOtpError] = useState('');
 
   const handleChange = (e) => {
     setFormData({
@@ -25,11 +31,58 @@ const SignupPage = () => {
       [e.target.name]: e.target.value,
     });
     setError('');
+    setOtpError('');
+  };
+
+  const handleSendOTP = async () => {
+    if (!formData.email) {
+      setOtpError('Please enter your email address first');
+      return;
+    }
+
+    setOtpLoading(true);
+    setOtpError('');
+
+    try {
+      await authAPI.sendRegistrationOTP(formData.email);
+      setIsOTPSent(true);
+      setOtpError('');
+    } catch (err) {
+      setOtpError(err.response?.data?.message || 'Failed to send OTP. Please try again.');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const handleVerifyOTP = async () => {
+    if (!emailOTP || emailOTP.length !== 6) {
+      setOtpError('Please enter a valid 6-digit OTP');
+      return;
+    }
+
+    setOtpLoading(true);
+    setOtpError('');
+
+    try {
+      await authAPI.verifyRegistrationOTP(formData.email, emailOTP);
+      setIsOTPVerified(true);
+      setOtpError('');
+    } catch (err) {
+      setOtpError(err.response?.data?.message || 'Invalid OTP. Please try again.');
+    } finally {
+      setOtpLoading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    // Check if email is verified
+    if (!isOTPVerified) {
+      setError('Please verify your email address with OTP before registering');
+      return;
+    }
 
     // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
@@ -89,16 +142,66 @@ const SignupPage = () => {
 
               <div className="form-group">
                 <label htmlFor="email">Email Address *</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  placeholder="your@email.com"
-                  autoComplete="email"
-                />
+                <div className="email-input-container">
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    placeholder="your@email.com"
+                    autoComplete="email"
+                    className="email-input"
+                    disabled={isOTPVerified}
+                  />
+                  <div className="email-actions">
+                    {!isOTPVerified && (
+                      <button
+                        type="button"
+                        onClick={handleSendOTP}
+                        disabled={otpLoading || !formData.email}
+                        className="btn btn-secondary otp-btn"
+                      >
+                        {otpLoading ? 'Sending...' : isOTPSent ? 'Resend OTP' : 'Send OTP'}
+                      </button>
+                    )}
+                    {isOTPVerified && (
+                      <span className="verification-status">
+                        ✓ Verified
+                      </span>
+                    )}
+                  </div>
+                </div>
+                
+                {isOTPSent && !isOTPVerified && (
+                  <div className="otp-verification-container">
+                    <div className="otp-input-container">
+                      <input
+                        type="text"
+                        placeholder="Enter 6-digit OTP"
+                        value={emailOTP}
+                        onChange={(e) => {
+                          setEmailOTP(e.target.value.replace(/\D/g, '').slice(0, 6));
+                          setOtpError('');
+                        }}
+                        maxLength={6}
+                        className="otp-input"
+                      />
+                      <div className="otp-actions">
+                        <button
+                          type="button"
+                          onClick={handleVerifyOTP}
+                          disabled={otpLoading || emailOTP.length !== 6}
+                          className="btn btn-primary otp-btn"
+                        >
+                          {otpLoading ? 'Verifying...' : 'Verify OTP'}
+                        </button>
+                      </div>
+                    </div>
+                    {otpError && <div className="otp-error">{otpError}</div>}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -177,7 +280,11 @@ const SignupPage = () => {
             {error && <div className="form-error">{error}</div>}
 
             <div className="form-actions">
-              <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
+              <button 
+                type="submit" 
+                className="btn btn-primary btn-block" 
+                disabled={loading || !isOTPVerified}
+              >
                 {loading ? (
                   <>
                     <span className="loading-spinner"></span>
@@ -187,6 +294,11 @@ const SignupPage = () => {
                   'Create Account'
                 )}
               </button>
+              {!isOTPVerified && (
+                <p style={{ fontSize: '14px', color: '#6b7280', marginTop: '10px', textAlign: 'center' }}>
+                  Please verify your email with OTP to continue
+                </p>
+              )}
             </div>
 
             <div className="form-footer">

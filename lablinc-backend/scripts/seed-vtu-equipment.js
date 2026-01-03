@@ -1,4 +1,11 @@
 require('dotenv').config();
+
+// Production guard
+if (process.env.NODE_ENV === 'production') {
+  console.error('❌ This script is disabled in production for security reasons');
+  process.exit(1);
+}
+
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const User = require('../src/models/User');

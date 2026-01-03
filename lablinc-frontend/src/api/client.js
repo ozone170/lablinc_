@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { config, isConfigValid, configErrors, validateApiUrl } from '../config/environment.js';
+import { handleApiError } from '../components/auth/AuthErrorHandler.jsx';
 
 // Validate configuration on startup
 if (!isConfigValid) {
@@ -15,6 +16,7 @@ if (!apiValidation.isValid) {
 const apiClient = axios.create({
   baseURL: config.apiUrl,
   timeout: config.apiTimeout,
+  withCredentials: true, // Important: send cookies with all requests
   headers: {
     'Content-Type': 'application/json',
   },
@@ -23,6 +25,8 @@ const apiClient = axios.create({
 // Request interceptor - add auth token and logging
 apiClient.interceptors.request.use(
   (requestConfig) => {
+    // Cookies are automatically sent by the browser, no need to manually add tokens
+    // Keep the Authorization header as fallback for development/testing
     const token = localStorage.getItem('accessToken');
     if (token) {
       requestConfig.headers.Authorization = `Bearer ${token}`;
@@ -98,41 +102,29 @@ apiClient.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const refreshToken = localStorage.getItem('refreshToken');
-        
-        if (!refreshToken) {
-          throw new Error('No refresh token available');
-        }
-
         if (config.enableLogging) {
           console.log('🔄 Attempting token refresh...');
         }
 
         // Try to refresh the token
-        const response = await axios.post(`${config.apiUrl}/auth/refresh`, {
-          refreshToken,
-        }, {
-          timeout: config.apiTimeout
+        const response = await axios.post(`${config.apiUrl}/auth/refresh`, {}, {
+          timeout: config.apiTimeout,
+          withCredentials: true // Important: send cookies with request
         });
 
-        const { accessToken } = response.data.data;
-        
-        // Save new access token
-        localStorage.setItem('accessToken', accessToken);
-
+        // Tokens are now in cookies, no need to handle them in response
         if (config.enableLogging) {
           console.log('✅ Token refreshed successfully');
         }
 
-        // Retry original request with new token
-        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+        // Retry original request (cookies will be sent automatically)
         return apiClient(originalRequest);
       } catch (refreshError) {
         if (config.enableLogging) {
           console.error('❌ Token refresh failed:', refreshError.message);
         }
 
-        // Refresh failed - logout user
+        // Refresh failed - clear any localStorage tokens and redirect
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('user');
@@ -150,6 +142,11 @@ apiClient.interceptors.response.use(
       error.message = 'Network error - please check your internet connection';
     } else if (!error.response) {
       error.message = 'Unable to connect to server - please try again later';
+    }
+
+    // Use global auth error handler for consistent error handling
+    if (error.response) {
+      handleApiError(error);
     }
 
     return Promise.reject(error);

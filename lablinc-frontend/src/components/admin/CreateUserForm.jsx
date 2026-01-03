@@ -7,7 +7,7 @@ const CreateUserForm = ({ onUserCreated, onCancel }) => {
     name: '',
     email: '',
     password: '',
-    role: 'user',
+    role: 'msme',
     organization: '',
     phone: '',
     status: 'active'
@@ -69,7 +69,7 @@ const CreateUserForm = ({ onUserCreated, onCancel }) => {
         name: '',
         email: '',
         password: '',
-        role: 'user',
+        role: 'msme',
         organization: '',
         phone: '',
         status: 'active'
@@ -174,9 +174,8 @@ const CreateUserForm = ({ onUserCreated, onCancel }) => {
               value={formData.role}
               onChange={handleChange}
             >
-              <option value="user">User</option>
-              <option value="institute">Institute</option>
               <option value="msme">MSME</option>
+              <option value="institute">Institute</option>
               <option value="admin">Admin</option>
             </select>
           </div>

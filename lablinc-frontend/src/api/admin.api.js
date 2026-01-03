@@ -17,6 +17,11 @@ export const adminAPI = {
     return response.data;
   },
 
+  verifyUserEmail: async (userId) => {
+    const response = await apiClient.patch(`/admin/users/${userId}/verify-email`);
+    return response.data;
+  },
+
   // Instrument Management
   getInstruments: async (params = {}) => {
     const response = await apiClient.get('/admin/instruments', { params });

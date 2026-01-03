@@ -9,12 +9,19 @@ const {
   forgotPassword, 
   resetPassword, 
   changePassword, 
+  requestPasswordChangeOTP,
   verifyEmail,
+  resendVerificationEmail,
+  sendEmailOTP,
+  sendRegistrationOTP,
+  verifyRegistrationOTP,
+  verifyEmailOTP,
   updateProfile
 } = require('../controllers/auth.controller');
 const authMiddleware = require('../middlewares/auth.middleware');
 const validate = require('../middlewares/validate.middleware');
 const { authLimiter } = require('../middlewares/rateLimit.middleware');
+const { otpLimiter, emailOtpLimiter } = require('../middlewares/rateLimit.middleware');
 
 const router = express.Router();
 
@@ -35,7 +42,7 @@ const loginValidation = [
 ];
 
 const refreshValidation = [
-  body('refreshToken').notEmpty().withMessage('Refresh token is required')
+  // No body validation needed as refresh token is now in cookies
 ];
 
 const forgotPasswordValidation = [
@@ -47,8 +54,16 @@ const resetPasswordValidation = [
   body('newPassword').isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
 ];
 
-const changePasswordValidation = [
-  body('oldPassword').notEmpty().withMessage('Current password is required'),
+const resendVerificationValidation = [
+  body('email').isEmail().normalizeEmail().withMessage('Valid email is required')
+];
+
+const requestOTPValidation = [
+  // No body validation needed as user is authenticated
+];
+
+const changePasswordWithOTPValidation = [
+  body('otp').isLength({ min: 6, max: 6 }).withMessage('OTP must be 6 digits'),
   body('newPassword').isLength({ min: 6 }).withMessage('New password must be at least 6 characters')
 ];
 
@@ -64,6 +79,24 @@ const verifyEmailValidation = [
   query('token').notEmpty().withMessage('Verification token is required')
 ];
 
+const sendEmailOTPValidation = [
+  body('email').isEmail().normalizeEmail().withMessage('Valid email is required')
+];
+
+const sendRegistrationOTPValidation = [
+  body('email').isEmail().normalizeEmail().withMessage('Valid email is required')
+];
+
+const verifyRegistrationOTPValidation = [
+  body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
+  body('otp').isLength({ min: 6, max: 6 }).withMessage('OTP must be 6 digits')
+];
+
+const verifyEmailOTPValidation = [
+  body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
+  body('otp').isLength({ min: 6, max: 6 }).withMessage('OTP must be 6 digits')
+];
+
 // Routes
 router.post('/register', authLimiter, registerValidation, validate, register);
 router.post('/login', authLimiter, loginValidation, validate, login);
@@ -73,7 +106,13 @@ router.get('/me', authMiddleware, getMe);
 router.patch('/me', authMiddleware, updateProfileValidation, validate, updateProfile);
 router.post('/forgot-password', authLimiter, forgotPasswordValidation, validate, forgotPassword);
 router.post('/reset-password', authLimiter, resetPasswordValidation, validate, resetPassword);
-router.post('/change-password', authMiddleware, changePasswordValidation, validate, changePassword);
+router.post('/request-password-change-otp', authMiddleware, otpLimiter, requestOTPValidation, validate, requestPasswordChangeOTP);
+router.post('/change-password-with-otp', authMiddleware, changePasswordWithOTPValidation, validate, changePassword);
 router.get('/verify-email', verifyEmailValidation, validate, verifyEmail);
+router.post('/resend-verification', authLimiter, resendVerificationValidation, validate, resendVerificationEmail);
+router.post('/send-email-otp', emailOtpLimiter, sendEmailOTPValidation, validate, sendEmailOTP);
+router.post('/send-registration-otp', emailOtpLimiter, sendRegistrationOTPValidation, validate, sendRegistrationOTP);
+router.post('/verify-registration-otp', authLimiter, verifyRegistrationOTPValidation, validate, verifyRegistrationOTP);
+router.post('/verify-email-otp', authLimiter, verifyEmailOTPValidation, validate, verifyEmailOTP);
 
 module.exports = router;

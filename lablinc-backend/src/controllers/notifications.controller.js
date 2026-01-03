@@ -19,6 +19,13 @@ const getNotifications = asyncHandler(async (req, res) => {
   const total = await Notification.countDocuments({ recipient: req.user.id });
   const unreadCount = await Notification.countDocuments({ recipient: req.user.id, read: false });
 
+  // Set cache headers for notifications list (cache for 1 minute)
+  res.set({
+    'Cache-Control': 'private, max-age=60',
+    'ETag': `"notifications-${req.user.id}-${Date.now()}"`,
+    'Last-Modified': new Date().toUTCString()
+  });
+
   res.json({
     success: true,
     data: {
@@ -42,6 +49,21 @@ const getUnreadCount = asyncHandler(async (req, res) => {
     recipient: req.user.id,
     read: false
   });
+
+  // Set aggressive caching for unread count (cache for 2 minutes)
+  res.set({
+    'Cache-Control': 'private, max-age=120, stale-while-revalidate=60',
+    'ETag': `"unread-${req.user.id}-${count}"`,
+    'Last-Modified': new Date().toUTCString()
+  });
+
+  // Check if client has cached version
+  const clientETag = req.get('If-None-Match');
+  const expectedETag = `"unread-${req.user.id}-${count}"`;
+  
+  if (clientETag === expectedETag) {
+    return res.status(304).end(); // Not Modified
+  }
 
   res.json({
     success: true,
@@ -67,6 +89,13 @@ const markAsRead = asyncHandler(async (req, res) => {
   notification.read = true;
   await notification.save();
 
+  // Clear cache after marking as read
+  res.set({
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0'
+  });
+
   res.json({
     success: true,
     message: 'Notification marked as read',
@@ -83,18 +112,18 @@ const markAllAsRead = asyncHandler(async (req, res) => {
     { read: true }
   );
 
+  // Clear cache after marking all as read
+  res.set({
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0'
+  });
+
   res.json({
     success: true,
     message: 'All notifications marked as read'
   });
 });
-
-module.exports = {
-  getNotifications,
-  getUnreadCount,
-  markAsRead,
-  markAllAsRead
-};
 
 // @desc    Delete notification
 // @route   DELETE /api/notifications/:id
@@ -113,6 +142,13 @@ const deleteNotification = asyncHandler(async (req, res) => {
 
   await notification.deleteOne();
 
+  // Clear cache after deletion
+  res.set({
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0'
+  });
+
   res.json({
     success: true,
     message: 'Notification deleted successfully'
@@ -124,6 +160,13 @@ const deleteNotification = asyncHandler(async (req, res) => {
 // @access  Private
 const clearAllNotifications = asyncHandler(async (req, res) => {
   const result = await Notification.deleteMany({ recipient: req.user.id });
+
+  // Clear cache after clearing all
+  res.set({
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0'
+  });
 
   res.json({
     success: true,
@@ -143,6 +186,13 @@ const getPreferences = asyncHandler(async (req, res) => {
   if (!settings) {
     settings = await UserSettings.create({ user: req.user.id });
   }
+
+  // Cache preferences for 5 minutes
+  res.set({
+    'Cache-Control': 'private, max-age=300',
+    'ETag': `"prefs-${req.user.id}-${settings.updatedAt.getTime()}"`,
+    'Last-Modified': settings.updatedAt.toUTCString()
+  });
 
   res.json({
     success: true,
@@ -184,6 +234,13 @@ const updatePreferences = asyncHandler(async (req, res) => {
   }
 
   await settings.save();
+
+  // Clear cache after update
+  res.set({
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0'
+  });
 
   res.json({
     success: true,

@@ -1,34 +1,19 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { notificationsAPI } from '../../api/notifications.api';
 import { useAuth } from '../../hooks/useAuth';
+import { NotificationContext } from '../../context/NotificationContext';
 import './NotificationBell.css';
 
 const NotificationBell = () => {
-  const [unreadCount, setUnreadCount] = useState(0);
   const [showDropdown, setShowDropdown] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
-
-  const fetchUnreadCount = useCallback(async () => {
-    try {
-      const data = await notificationsAPI.getUnreadCount();
-      setUnreadCount(data.count);
-    } catch (error) {
-      console.error('Failed to fetch unread count:', error);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (user) {
-      fetchUnreadCount();
-      // Poll for new notifications every 30 seconds
-      const interval = setInterval(fetchUnreadCount, 30000);
-      return () => clearInterval(interval);
-    }
-  }, [user, fetchUnreadCount]);
+  
+  // Use context for unread count instead of separate API calls
+  const { unreadCount, markAsRead, forceRefresh } = useContext(NotificationContext);
 
   const fetchRecentNotifications = async () => {
     setLoading(true);
@@ -45,6 +30,8 @@ const NotificationBell = () => {
   const handleBellClick = () => {
     if (!showDropdown) {
       fetchRecentNotifications();
+      // Force refresh unread count when opening dropdown
+      forceRefresh();
     }
     setShowDropdown(!showDropdown);
   };
@@ -52,8 +39,13 @@ const NotificationBell = () => {
   const handleNotificationClick = async (notification) => {
     try {
       if (!notification.read) {
-        await notificationsAPI.markAsRead(notification._id);
-        setUnreadCount(prev => Math.max(0, prev - 1));
+        await markAsRead(notification._id);
+        // Update local state to reflect the change immediately
+        setNotifications(prev => 
+          prev.map(n => 
+            n._id === notification._id ? { ...n, read: true } : n
+          )
+        );
       }
       setShowDropdown(false);
       navigate('/dashboard');

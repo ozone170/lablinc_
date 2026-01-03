@@ -62,7 +62,37 @@ const userSchema = new mongoose.Schema({
     type: String,
     select: false
   },
-  resetPasswordExpires: {
+  passwordChangeOTP: {
+    type: String,
+    select: false
+  },
+  passwordChangeOTPExpires: {
+    type: Date,
+    select: false
+  },
+  passwordChangeOTPAttempts: {
+    type: Number,
+    default: 0,
+    select: false
+  },
+  emailOTP: {
+    type: String,
+    select: false
+  },
+  emailOTPExpires: {
+    type: Date,
+    select: false
+  },
+  emailOTPAttempts: {
+    type: Number,
+    default: 0,
+    select: false
+  },
+  lastEmailOTPRequest: {
+    type: Date,
+    select: false
+  },
+  lastPasswordOTPRequest: {
     type: Date,
     select: false
   }
@@ -74,6 +104,13 @@ const userSchema = new mongoose.Schema({
 userSchema.pre('save', async function() {
   if (!this.isModified('password')) return;
   this.password = await bcrypt.hash(this.password, 12);
+});
+
+// Auto-verify admin users
+userSchema.pre('save', function() {
+  if (this.role === 'admin' && this.isNew) {
+    this.emailVerified = true;
+  }
 });
 
 // Compare password method

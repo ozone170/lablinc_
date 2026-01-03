@@ -65,10 +65,20 @@ const errorHandler = (err, req, res, next) => {
 
   // Log error
   if (statusCode >= 500) {
-    logger.error(`${err.name}: ${err.message}`);
-    if (process.env.NODE_ENV === 'development') {
-      console.error(err.stack);
-    }
+    logger.error(`${err.name}: ${err.message}`, {
+      stack: err.stack,
+      url: req.originalUrl,
+      method: req.method,
+      ip: req.ip,
+      userId: req.user?.id
+    });
+  } else if (statusCode >= 400) {
+    logger.warn(`${err.name}: ${err.message}`, {
+      url: req.originalUrl,
+      method: req.method,
+      ip: req.ip,
+      userId: req.user?.id
+    });
   }
 
   // Send response

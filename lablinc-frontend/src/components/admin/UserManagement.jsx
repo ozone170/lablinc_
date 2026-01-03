@@ -15,6 +15,7 @@ const UserManagement = () => {
   const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0 });
   const [filters, setFilters] = useState({ search: '', role: '', status: '' });
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [verifyingEmail, setVerifyingEmail] = useState(null);
 
   useEffect(() => {
     fetchUsers();
@@ -63,6 +64,20 @@ const UserManagement = () => {
     } catch (error) {
       console.error('Failed to update user status:', error);
       alert('Failed to update user status');
+    }
+  };
+
+  const handleVerifyEmail = async (userId) => {
+    try {
+      setVerifyingEmail(userId);
+      await adminAPI.verifyUserEmail(userId);
+      fetchUsers();
+      alert('User email verified successfully');
+    } catch (error) {
+      console.error('Failed to verify user email:', error);
+      alert(error.response?.data?.message || 'Failed to verify user email');
+    } finally {
+      setVerifyingEmail(null);
     }
   };
 
@@ -127,6 +142,30 @@ const UserManagement = () => {
         <Badge variant={getStatusBadgeVariant(value)}>
           {value?.toUpperCase()}
         </Badge>
+      ),
+    },
+    {
+      header: 'Email Verified',
+      key: 'emailVerified',
+      render: (value, row) => (
+        <div className="flex items-center gap-2">
+          <Badge variant={value ? 'success' : 'warning'}>
+            {value ? '✅ Verified' : '❌ Unverified'}
+          </Badge>
+          {!value && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleVerifyEmail(row._id);
+              }}
+              disabled={verifyingEmail === row._id}
+              className="btn btn-xs btn-primary"
+              title="Verify email manually"
+            >
+              {verifyingEmail === row._id ? '⏳' : '✅ Verify'}
+            </button>
+          )}
+        </div>
       ),
     },
     {
@@ -212,7 +251,6 @@ const UserManagement = () => {
             <option value="admin">Admin</option>
             <option value="msme">MSME</option>
             <option value="institute">Institute</option>
-            <option value="user">User</option>
           </select>
 
           <select

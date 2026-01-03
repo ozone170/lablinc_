@@ -23,15 +23,20 @@ const createUser = asyncHandler(async (req, res) => {
     throw error;
   }
 
-  // Hash password
-  const hashedPassword = await bcrypt.hash(password, 12);
+  // Validate role - allow admin creation
+  const allowedRoles = ['msme', 'institute', 'admin'];
+  if (role && !allowedRoles.includes(role)) {
+    const error = new Error('Invalid role specified');
+    error.statusCode = 400;
+    throw error;
+  }
 
-  // Create user
+  // Create user (password will be hashed by pre-save middleware)
   const user = await User.create({
     name,
     email,
-    password: hashedPassword,
-    role: role || 'user',
+    password,
+    role: role || 'msme',
     organization,
     phone,
     status: status || 'active',
@@ -39,12 +44,14 @@ const createUser = asyncHandler(async (req, res) => {
   });
 
   // Remove password from response
-  user.password = undefined;
+  const userResponse = user.toObject();
+  delete userResponse.password;
+  delete userResponse.refreshToken;
 
   res.status(201).json({
     success: true,
     message: 'User created successfully',
-    data: { user }
+    data: { user: userResponse }
   });
 });
 
@@ -650,6 +657,60 @@ const resetUserPassword = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Verify user email (admin override)
+// @route   PATCH /api/admin/users/:id/verify-email
+// @access  Private (admin)
+const verifyUserEmail = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.id);
+
+  if (!user) {
+    const error = new Error('User not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (user.emailVerified) {
+    const error = new Error('Email is already verified');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  // Mark email as verified
+  user.emailVerified = true;
+  user.emailVerificationToken = undefined;
+  user.emailVerificationExpires = undefined;
+  
+  // Clear any OTP fields
+  user.emailOTP = undefined;
+  user.emailOTPExpires = undefined;
+  user.emailOTPAttempts = 0;
+  
+  // Invalidate refresh tokens for security
+  user.refreshToken = undefined;
+  
+  await user.save();
+
+  // Log the admin action
+  const logger = require('../utils/logger');
+  logger.logAuth('admin_email_verification_override', user._id, user.email, true, { 
+    adminId: req.user.id,
+    adminEmail: req.user.email 
+  });
+
+  res.json({
+    success: true,
+    message: 'User email verified successfully',
+    data: { 
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        emailVerified: user.emailVerified
+      }
+    }
+  });
+});
+
 // @desc    Get revenue report
 // @route   GET /api/admin/reports/revenue
 // @access  Private (admin)
@@ -930,6 +991,7 @@ module.exports = {
   createUser,
   getUsers,
   updateUserStatus,
+  verifyUserEmail,
   createInstrument,
   getCategories,
   getInstruments,

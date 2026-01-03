@@ -1,119 +1,139 @@
-const nodemailer = require('nodemailer');
-
-// Create transporter
-const createTransporter = () => {
-  return nodemailer.createTransport({
-    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-    port: process.env.EMAIL_PORT || 587,
-    secure: false,
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASSWORD
-    }
-  });
-};
+const sesService = require('./email/ses.service');
+const verifyEmailTemplate = require('./email/templates/verifyEmail');
+const resetPasswordTemplate = require('./email/templates/resetPassword');
+const otpEmailTemplate = require('./email/templates/otpEmail');
+const emailVerificationOTPTemplate = require('./email/templates/emailVerificationOTP');
+const bookingConfirmationTemplate = require('./email/templates/bookingConfirmation');
+const invoiceEmailTemplate = require('./email/templates/invoiceEmail');
 
 // Send verification email
 const sendVerificationEmail = async (user, token) => {
-  const transporter = createTransporter();
-  
   const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
+  const html = verifyEmailTemplate(user.name, verificationUrl);
   
-  const mailOptions = {
-    from: `"${process.env.EMAIL_FROM_NAME || 'LabLinc'}" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
-    to: user.email,
-    subject: 'Verify Your Email - LabLinc',
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2>Welcome to LabLinc, ${user.name}!</h2>
-        <p>Thank you for registering. Please verify your email address by clicking the button below:</p>
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="${verificationUrl}" 
-             style="background-color: #4F46E5; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
-            Verify Email
-          </a>
-        </div>
-        <p>Or copy and paste this link into your browser:</p>
-        <p style="color: #666; word-break: break-all;">${verificationUrl}</p>
-        <p style="color: #999; font-size: 12px; margin-top: 30px;">
-          This link will expire in 24 hours. If you didn't create an account, please ignore this email.
-        </p>
-      </div>
-    `
-  };
-
-  await transporter.sendMail(mailOptions);
+  await sesService.sendEmail(
+    user.email,
+    'Verify Your Email - LabLinc',
+    html
+  );
 };
 
 // Send password reset email
 const sendPasswordResetEmail = async (user, token) => {
-  const transporter = createTransporter();
-  
   const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+  const html = resetPasswordTemplate(user.name, resetUrl);
   
-  const mailOptions = {
-    from: `"${process.env.EMAIL_FROM_NAME || 'LabLinc'}" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
-    to: user.email,
-    subject: 'Password Reset Request - LabLinc',
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2>Password Reset Request</h2>
-        <p>Hi ${user.name},</p>
-        <p>You requested to reset your password. Click the button below to proceed:</p>
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="${resetUrl}" 
-             style="background-color: #4F46E5; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
-            Reset Password
-          </a>
-        </div>
-        <p>Or copy and paste this link into your browser:</p>
-        <p style="color: #666; word-break: break-all;">${resetUrl}</p>
-        <p style="color: #999; font-size: 12px; margin-top: 30px;">
-          This link will expire in 1 hour. If you didn't request a password reset, please ignore this email.
-        </p>
-      </div>
-    `
-  };
+  await sesService.sendEmail(
+    user.email,
+    'Password Reset Request - LabLinc',
+    html
+  );
+};
 
-  await transporter.sendMail(mailOptions);
+// Send OTP email for password change
+const sendPasswordChangeOTP = async (user, otp) => {
+  console.log('📧 SENDING PASSWORD CHANGE OTP', {
+    recipientEmail: user.email,
+    recipientName: user.name,
+    userId: user._id,
+    timestamp: new Date().toISOString()
+  });
+
+  const html = otpEmailTemplate(user.name, otp);
+  
+  const result = await sesService.sendEmail(
+    user.email, // CRITICAL: Using user.email from DB, NOT req.body.email
+    'Password Change Verification - LabLinc',
+    html // Using branded template
+  );
+
+  // TASK H1: MANDATORY - Log and store MessageId
+  console.log('📨 PASSWORD CHANGE OTP - SES MESSAGE ID:', result.MessageId);
+  
+  // Optional: Store in database for tracking
+  // await EmailLog.create({
+  //   userId: user._id,
+  //   email: user.email,
+  //   type: 'password_change_otp',
+  //   messageId: result.MessageId,
+  //   timestamp: new Date()
+  // });
 };
 
 // Send booking confirmation email
 const sendBookingConfirmation = async (user, booking) => {
-  const transporter = createTransporter();
+  const html = bookingConfirmationTemplate(user.name, booking);
   
-  const mailOptions = {
-    from: `"${process.env.EMAIL_FROM_NAME || 'LabLinc'}" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
-    to: user.email,
-    subject: 'Booking Confirmation - LabLinc',
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2>Booking Confirmed!</h2>
-        <p>Hi ${user.name},</p>
-        <p>Your booking has been confirmed. Here are the details:</p>
-        <div style="background-color: #f5f5f5; padding: 20px; border-radius: 5px; margin: 20px 0;">
-          <p><strong>Booking ID:</strong> ${booking._id}</p>
-          <p><strong>Instrument:</strong> ${booking.instrument?.name || 'N/A'}</p>
-          <p><strong>Start Date:</strong> ${new Date(booking.startDate).toLocaleDateString()}</p>
-          <p><strong>End Date:</strong> ${new Date(booking.endDate).toLocaleDateString()}</p>
-          <p><strong>Total Amount:</strong> ₹${booking.totalAmount}</p>
-        </div>
-        <p>You can view your booking details in your dashboard.</p>
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="${process.env.FRONTEND_URL}/bookings/${booking._id}" 
-             style="background-color: #4F46E5; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
-            View Booking
-          </a>
-        </div>
-      </div>
-    `
-  };
+  await sesService.sendEmail(
+    user.email,
+    'Booking Confirmation - LabLinc',
+    html
+  );
+};
 
-  await transporter.sendMail(mailOptions);
+// Send OTP email for email verification
+const sendEmailVerificationOTP = async (user, otp) => {
+  console.log('📧 SENDING EMAIL VERIFICATION OTP', {
+    recipientEmail: user.email,
+    recipientName: user.name,
+    userId: user._id,
+    timestamp: new Date().toISOString()
+  });
+
+  const html = emailVerificationOTPTemplate(user.name, otp);
+  
+  const result = await sesService.sendEmail(
+    user.email, // CRITICAL: Using user.email from DB, NOT req.body.email
+    'Email Verification Code - LabLinc',
+    html // Using branded template
+  );
+
+  // TASK H1: MANDATORY - Log and store MessageId
+  console.log('📨 EMAIL VERIFICATION OTP - SES MESSAGE ID:', result.MessageId);
+  
+  // Optional: Store in database for tracking
+  // await EmailLog.create({
+  //   userId: user._id,
+  //   email: user.email,
+  //   type: 'email_verification_otp',
+  //   messageId: result.MessageId,
+  //   timestamp: new Date()
+  // });
+};
+
+// Send invoice email with PDF attachment
+const sendInvoiceEmail = async (user, booking, invoicePath) => {
+  console.log('📧 SENDING INVOICE EMAIL', {
+    recipientEmail: user.email,
+    recipientName: user.name,
+    bookingId: booking._id,
+    invoiceId: booking.invoiceId,
+    timestamp: new Date().toISOString()
+  });
+
+  const html = invoiceEmailTemplate(user.name, booking);
+  
+  const result = await sesService.sendRawEmail(
+    user.email,
+    `Invoice for Booking ${booking._id.toString().slice(-8).toUpperCase()} - LabLinc`,
+    html,
+    [{
+      filename: `invoice-${booking.invoiceId}.pdf`,
+      path: invoicePath
+    }]
+  );
+
+  // TASK H1: MANDATORY - Log and store MessageId
+  console.log('📨 INVOICE EMAIL - SES MESSAGE ID:', result.MessageId);
+  
+  return result;
 };
 
 module.exports = {
   sendVerificationEmail,
   sendPasswordResetEmail,
-  sendBookingConfirmation
+  sendPasswordChangeOTP,
+  sendEmailVerificationOTP,
+  sendBookingConfirmation,
+  sendInvoiceEmail
 };

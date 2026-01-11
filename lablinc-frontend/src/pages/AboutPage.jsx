@@ -14,9 +14,6 @@ const AboutPage = () => {
         <section className="hero-section">
           <div className="hero-overlay">
             <div className="hero-content">
-              <div className="logo-container">
-                <div className="logo">LL</div>
-              </div>
               <h1>About LabLinc</h1>
               <p>Bridging Academia & Industry</p>
             </div>

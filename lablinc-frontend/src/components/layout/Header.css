@@ -29,8 +29,6 @@
   transition: opacity var(--duration-300) var(--ease-out);
   text-decoration: none;
   min-height: var(--touch-target-min);
-  padding: var(--space-xs) var(--space-sm);
-  border-radius: var(--radius-lg);
   flex-shrink: 0;
 }
 

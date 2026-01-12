@@ -207,7 +207,7 @@
 
 @media (max-width: 768px) {
   .header {
-    padding: var(--space-3) var(--space-4);
+    padding: var(--space-3) var(--space-2);
     height: auto;
     min-height: var(--header-height);
   }
@@ -215,17 +215,21 @@
   .header-container {
     flex-wrap: nowrap;
     position: relative;
-    gap: var(--space-sm);
+    gap: var(--space-xs);
+    justify-content: space-between;
   }
 
   .logo {
     flex-shrink: 0;
     min-width: fit-content;
+    order: 1;
   }
 
   .logo-text {
     font-size: var(--font-size-lg);
     min-width: fit-content;
+    white-space: nowrap;
+    overflow: visible;
   }
 
   .logo-image {
@@ -235,6 +239,7 @@
   .mobile-menu-button {
     display: flex;
     order: 3;
+    flex-shrink: 0;
   }
 
   .nav {
@@ -334,17 +339,65 @@
 }
 
 @media (max-width: 480px) {
+  .header {
+    padding: var(--space-2) var(--space-2);
+  }
+  
   .header-container {
     gap: var(--space-xs);
   }
   
   .logo-text {
     font-size: var(--font-size-base);
-    min-width: 60px;
+    min-width: 65px;
+    white-space: nowrap;
+    overflow: visible;
   }
   
   .logo-image {
     height: 28px;
+  }
+  
+  .mobile-menu-button {
+    padding: var(--space-1);
+    min-width: 40px;
+    min-height: 40px;
+  }
+  
+  .hamburger {
+    width: 20px;
+  }
+}
+
+@media (max-width: 360px) {
+  .header {
+    padding: var(--space-1) var(--space-1);
+  }
+  
+  .header-container {
+    gap: 4px;
+  }
+  
+  .logo-text {
+    font-size: var(--font-size-sm);
+    min-width: 55px;
+    white-space: nowrap;
+    overflow: visible;
+  }
+  
+  .logo-image {
+    height: 24px;
+  }
+  
+  .mobile-menu-button {
+    padding: 4px;
+    min-width: 36px;
+    min-height: 36px;
+  }
+  
+  .hamburger {
+    width: 18px;
+    height: 2px;
   }
 }
 /* Auth button links styling */

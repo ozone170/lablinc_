@@ -30,6 +30,7 @@
   text-decoration: none;
   min-height: var(--touch-target-min);
   flex-shrink: 0;
+  min-width: fit-content;
 }
 
 .logo:hover {
@@ -214,10 +215,17 @@
   .header-container {
     flex-wrap: nowrap;
     position: relative;
+    gap: var(--space-sm);
+  }
+
+  .logo {
+    flex-shrink: 0;
+    min-width: fit-content;
   }
 
   .logo-text {
     font-size: var(--font-size-lg);
+    min-width: fit-content;
   }
 
   .logo-image {
@@ -322,6 +330,21 @@
 
   .mobile-auth-buttons {
     align-items: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-container {
+    gap: var(--space-xs);
+  }
+  
+  .logo-text {
+    font-size: var(--font-size-base);
+    min-width: 60px;
+  }
+  
+  .logo-image {
+    height: 28px;
   }
 }
 /* Auth button links styling */

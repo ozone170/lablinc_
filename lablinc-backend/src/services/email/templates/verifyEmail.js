@@ -1,41 +1,53 @@
+const emailLayout = require('./layout');
+
 const verifyEmailTemplate = (name, verificationUrl) => {
-  return `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-      <div style="text-align: center; margin-bottom: 30px;">
-        <h1 style="color: #4F46E5; margin: 0;">LabLinc</h1>
-      </div>
-      
-      <h2 style="color: #333; margin-bottom: 20px;">Welcome to LabLinc, ${name}!</h2>
-      
-      <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">
-        Thank you for registering with LabLinc. To complete your account setup and start accessing our laboratory instruments, please verify your email address.
+  const content = `
+    <h2 style="color: #1f2937; margin-bottom: 16px; font-size: 24px; font-weight: 600; text-align: center;">
+      Verify Your Email
+    </h2>
+    
+    <p style="color: #6b7280; line-height: 1.6; margin-bottom: 32px; font-size: 16px; text-align: center;">
+      Hi <strong style="color: #1f2937;">${name}</strong>, click the button below to verify your email
+    </p>
+    
+    <!-- Primary CTA Button -->
+    <div style="text-align: center; margin: 40px 0;">
+      <a href="${verificationUrl}" 
+         style="background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%); 
+                color: white; 
+                padding: 18px 48px; 
+                text-decoration: none; 
+                border-radius: 12px; 
+                display: inline-block; 
+                font-weight: 600; 
+                font-size: 16px;
+                box-shadow: 0 10px 40px rgba(78, 205, 196, 0.3);
+                transition: all 0.2s ease;">
+        Verify Email Address
+      </a>
+    </div>
+    
+    <!-- Fallback Link -->
+    <div style="background: #f3f4f6; border-radius: 12px; padding: 20px; margin: 32px 0;">
+      <p style="margin: 0 0 12px 0; color: #6b7280; font-size: 13px; text-align: center;">
+        Button not working? Copy and paste this link:
       </p>
-      
-      <div style="text-align: center; margin: 30px 0;">
-        <a href="${verificationUrl}" 
-           style="background-color: #4F46E5; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 16px;">
-          Verify Email Address
-        </a>
-      </div>
-      
-      <p style="color: #666; line-height: 1.6; margin-bottom: 10px;">
-        If the button doesn't work, copy and paste this link into your browser:
-      </p>
-      <p style="color: #4F46E5; word-break: break-all; background-color: #f8f9fa; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 14px;">
+      <p style="margin: 0; color: #4ecdc4; word-break: break-all; background: white; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 12px; text-align: center; border: 1px solid #e5e7eb;">
         ${verificationUrl}
       </p>
-      
-      <div style="border-top: 1px solid #eee; margin-top: 30px; padding-top: 20px;">
-        <p style="color: #999; font-size: 12px; line-height: 1.4;">
-          <strong>Security Notice:</strong> This verification link will expire in 24 hours for your security. 
-          If you didn't create an account with LabLinc, please ignore this email.
-        </p>
-        <p style="color: #999; font-size: 12px; margin-top: 15px;">
-          Need help? Contact us at support@lablinc.in
-        </p>
-      </div>
     </div>
+    
+    <!-- Simple Footer Note -->
+    <p style="color: #9ca3af; font-size: 13px; text-align: center; margin-top: 32px;">
+      This link expires in 24 hours. Didn't sign up? Ignore this email.
+    </p>
   `;
+
+  return emailLayout(content, {
+    title: 'Verify Your Email - LabLinc',
+    preheader: 'Click to verify your email address and activate your account',
+    showSecurityWarning: false
+  });
 };
 
 module.exports = verifyEmailTemplate;

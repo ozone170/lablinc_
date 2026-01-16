@@ -208,14 +208,17 @@
 ### Completed Tasks:
 - ✅ TASK 1.1 - Stylize "Forgot Password" Page (Mobile-First)
 - ✅ TASK 1.2 - Stylize "Change Password" Page
+- ✅ TASK 4.1 - Simplify OTP Email Template
+- ✅ TASK 4.2 - Simplify Email Verification Template
+- ✅ TASK 4.3 - Simplify Invoice Email Template
 - ✅ TASK 5.1 - Modernize "Verify Email" UI (Mobile)
 - ✅ TASK 5.2 - Fix Total Amount Text Color (Booking Details)
 
 ### In Progress:
-- Awaiting AWS SES credentials update
+- Awaiting AWS SES credentials update for email testing
 
 ### Blocked:
-- All email-related tasks blocked by AWS SES authentication issue
+- EPIC 2, 3, 6 tasks require AWS SES credentials to be updated
 
 ---
 

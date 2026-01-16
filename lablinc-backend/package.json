@@ -23,6 +23,7 @@
   "license": "ISC",
   "dependencies": {
     "@aws-sdk/client-ses": "^3.957.0",
+    "aws-sdk": "^2.1693.0",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.8.0",
     "cookie-parser": "^1.4.7",

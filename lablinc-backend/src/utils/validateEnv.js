@@ -6,8 +6,6 @@ const validateEnvironment = () => {
     'JWT_ACCESS_SECRET',
     'JWT_REFRESH_SECRET',
     'AWS_REGION',
-    'AWS_ACCESS_KEY_ID',
-    'AWS_SECRET_ACCESS_KEY',
     'EMAIL_FROM',
     'FRONTEND_URL'
   ];

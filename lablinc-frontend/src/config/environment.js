@@ -44,8 +44,8 @@ const environmentConfigs = {
     retryAttempts: 3,
     retryDelay: 2000,
   },
-  [ENV_TYPES.PRODUCTION]: {
-    apiUrl: 'https://api.lablinc.com/api',
+[ENV_TYPES.PRODUCTION]: {
+ apiUrl: import.meta.env.VITE_API_URL || 'https://lablinc.in/api', 
     apiTimeout: 20000,
     enableLogging: false,
     enableDebugMode: false,
@@ -67,7 +67,7 @@ const configSchema = {
   apiUrl: {
     required: true,
     type: 'string',
-    pattern: /^https?:\/\/.+/,
+    pattern: /^(\/api|https?:\/\/.+)/,
     fallback: 'http://localhost:5000/api'
   },
   apiTimeout: {
@@ -194,7 +194,7 @@ const loadConfiguration = () => {
   
   // Override with environment variables
   const envOverrides = {
-    apiUrl: import.meta.env.VITE_API_URL,
+    apiUrl: import.meta.env.VITE_API_URL|| undefined,
     apiTimeout: import.meta.env.VITE_API_TIMEOUT,
     enableLogging: import.meta.env.VITE_ENABLE_LOGGING,
     enableDebugMode: import.meta.env.VITE_ENABLE_DEBUG,

@@ -2,7 +2,7 @@ const validateEnvironment = () => {
   const requiredEnvVars = [
     'NODE_ENV',
     'PORT',
-    'MONGODB_URI',
+    'MONGO_URI',
     'JWT_ACCESS_SECRET',
     'JWT_REFRESH_SECRET',
     'AWS_REGION',

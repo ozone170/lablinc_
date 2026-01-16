@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authAPI } from '../api/auth.api';
 import { useToast } from '../hooks/useToast';
 import { useAuth } from '../hooks/useAuth';
 import MainLayout from '../components/layout/MainLayout';
+import './ChangePasswordPage.css';
 
 const ChangePasswordPage = () => {
   const navigate = useNavigate();
@@ -21,6 +22,54 @@ const ChangePasswordPage = () => {
   const [countdown, setCountdown] = useState(0);
   const [resendDisabled, setResendDisabled] = useState(false);
   const [error, setError] = useState('');
+  const [passwordStrength, setPasswordStrength] = useState({ score: 0, label: '' });
+  const [passwordRequirements, setPasswordRequirements] = useState({
+    minLength: false,
+    hasUpperCase: false,
+    hasLowerCase: false,
+    hasNumber: false,
+    hasSpecialChar: false
+  });
+
+  // Calculate password strength
+  useEffect(() => {
+    if (!formData.newPassword) {
+      setPasswordStrength({ score: 0, label: '' });
+      setPasswordRequirements({
+        minLength: false,
+        hasUpperCase: false,
+        hasLowerCase: false,
+        hasNumber: false,
+        hasSpecialChar: false
+      });
+      return;
+    }
+
+    const password = formData.newPassword;
+    const requirements = {
+      minLength: password.length >= 8,
+      hasUpperCase: /[A-Z]/.test(password),
+      hasLowerCase: /[a-z]/.test(password),
+      hasNumber: /[0-9]/.test(password),
+      hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+    };
+
+    setPasswordRequirements(requirements);
+
+    // Calculate strength score
+    const metRequirements = Object.values(requirements).filter(Boolean).length;
+    let strength = { score: 0, label: '' };
+
+    if (metRequirements <= 2) {
+      strength = { score: 1, label: 'weak' };
+    } else if (metRequirements <= 3) {
+      strength = { score: 2, label: 'medium' };
+    } else {
+      strength = { score: 3, label: 'strong' };
+    }
+
+    setPasswordStrength(strength);
+  }, [formData.newPassword]);
 
   const handleChange = (e) => {
     setFormData({
@@ -147,49 +196,47 @@ const ChangePasswordPage = () => {
 
   return (
     <MainLayout>
-      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-        <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900">Change Password</h2>
-            <p className="mt-2 text-sm text-gray-600">
+      <div className="change-password-page">
+        <div className="change-password-container">
+          <div className="change-password-header">
+            <h2 className="change-password-title">Change Password</h2>
+            <p className="change-password-subtitle">
               {step === 1 
-                ? 'We\'ll send an OTP to your email for verification'
-                : 'Enter the OTP sent to your email and your new password'
+                ? 'We\'ll send a verification code to your email'
+                : 'Enter the code and create your new password'
               }
             </p>
           </div>
-        </div>
 
-        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-          <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          <div className="change-password-card">
             
             {step === 1 && (
-              <div className="text-center">
-                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 mb-4">
-                  <svg className="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="change-password-step1">
+                <div className="change-password-icon">
+                  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Secure Password Change</h3>
-                <p className="text-gray-600 mb-6">
-                  For your security, we'll send a verification code to your registered email address before allowing you to change your password.
+                <h3 className="change-password-step1-title">Secure Password Change</h3>
+                <p className="change-password-step1-description">
+                  For your security, we'll send a verification code to your registered email address.
                 </p>
                 
                 {error && (
-                  <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-                    {error}
+                  <div className="form-error">
+                    <p className="form-error-message">{error}</p>
                   </div>
                 )}
                 
                 <button
                   onClick={requestOTP}
                   disabled={isLoading}
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="btn btn-primary btn-block"
                 >
                   {isLoading ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Sending OTP...
+                      Sending Code...
                     </>
                   ) : (
                     'Send Verification Code'
@@ -199,18 +246,19 @@ const ChangePasswordPage = () => {
             )}
 
             {step === 2 && (
-              <form className="space-y-6" onSubmit={handleSubmit}>
+              <form className="change-password-form" onSubmit={handleSubmit}>
                 {error && (
-                  <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-                    {error}
+                  <div className="form-error">
+                    <p className="form-error-message">{error}</p>
                   </div>
                 )}
                 
-                <div>
-                  <label htmlFor="otp" className="block text-sm font-medium text-gray-700">
+                {/* OTP Input */}
+                <div className="form-group">
+                  <label htmlFor="otp" className="input-label">
                     Verification Code
                   </label>
-                  <div className="mt-1">
+                  <div className="otp-input-wrapper">
                     <input
                       id="otp"
                       name="otp"
@@ -223,37 +271,38 @@ const ChangePasswordPage = () => {
                         setFormData({ ...formData, otp: value });
                         setError('');
                       }}
-                      className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-center text-lg font-mono"
+                      className="input otp-input"
                       placeholder="000000"
                     />
                   </div>
-                  <div className="mt-2 flex justify-between items-center">
+                  <div className="otp-timer-row">
                     {countdown > 0 ? (
-                      <p className="text-xs text-gray-500">
-                        Code expires in {formatTime(countdown)}
-                      </p>
+                      <span className="otp-timer">
+                        Expires in {formatTime(countdown)}
+                      </span>
                     ) : (
-                      <p className="text-xs text-red-500">
-                        Code has expired
-                      </p>
+                      <span className="otp-timer expired">
+                        Code expired
+                      </span>
                     )}
                     
                     <button
                       type="button"
                       onClick={resendOTP}
                       disabled={resendDisabled || isLoading}
-                      className="text-xs text-indigo-600 hover:text-indigo-500 disabled:text-gray-400 disabled:cursor-not-allowed"
+                      className="otp-resend-btn"
                     >
-                      {resendDisabled ? `Resend in ${formatTime(countdown)}` : 'Resend OTP'}
+                      {resendDisabled ? `Resend (${formatTime(countdown)})` : 'Resend Code'}
                     </button>
                   </div>
                 </div>
 
-                <div>
-                  <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700">
+                {/* New Password Input */}
+                <div className="form-group">
+                  <label htmlFor="newPassword" className="input-label">
                     New Password
                   </label>
-                  <div className="mt-1">
+                  <div className="input-wrapper">
                     <input
                       id="newPassword"
                       name="newPassword"
@@ -262,20 +311,57 @@ const ChangePasswordPage = () => {
                       required
                       value={formData.newPassword}
                       onChange={handleChange}
-                      className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      className="input"
                       placeholder="Enter new password"
                     />
+                    {formData.newPassword && passwordStrength.score > 0 && (
+                      <span className={`input-validation-icon ${passwordStrength.score >= 2 ? 'valid' : 'invalid'}`}>
+                        {passwordStrength.score >= 2 ? '✓' : '!'}
+                      </span>
+                    )}
                   </div>
-                  <p className="mt-1 text-xs text-gray-500">
-                    Password must be at least 6 characters long
-                  </p>
+                  
+                  {/* Password Strength Indicator */}
+                  {formData.newPassword && (
+                    <div className="password-strength-indicator">
+                      <div className="password-strength-bar">
+                        <div className={`password-strength-fill ${passwordStrength.label}`}></div>
+                      </div>
+                      <div className={`password-strength-text ${passwordStrength.label}`}>
+                        <span>Password strength: {passwordStrength.label}</span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Password Requirements */}
+                  <div className="password-requirements">
+                    <p className="password-requirements-title">Password must contain:</p>
+                    <ul className="password-requirements-list">
+                      <li className={`password-requirement ${passwordRequirements.minLength ? 'met' : ''}`}>
+                        At least 8 characters
+                      </li>
+                      <li className={`password-requirement ${passwordRequirements.hasUpperCase ? 'met' : ''}`}>
+                        One uppercase letter
+                      </li>
+                      <li className={`password-requirement ${passwordRequirements.hasLowerCase ? 'met' : ''}`}>
+                        One lowercase letter
+                      </li>
+                      <li className={`password-requirement ${passwordRequirements.hasNumber ? 'met' : ''}`}>
+                        One number
+                      </li>
+                      <li className={`password-requirement ${passwordRequirements.hasSpecialChar ? 'met' : ''}`}>
+                        One special character
+                      </li>
+                    </ul>
+                  </div>
                 </div>
 
-                <div>
-                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                {/* Confirm Password Input */}
+                <div className="form-group">
+                  <label htmlFor="confirmPassword" className="input-label">
                     Confirm New Password
                   </label>
-                  <div className="mt-1">
+                  <div className="input-wrapper">
                     <input
                       id="confirmPassword"
                       name="confirmPassword"
@@ -284,28 +370,40 @@ const ChangePasswordPage = () => {
                       required
                       value={formData.confirmPassword}
                       onChange={handleChange}
-                      className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      className="input"
                       placeholder="Confirm new password"
                     />
+                    {formData.confirmPassword && (
+                      <span className={`input-validation-icon ${formData.newPassword === formData.confirmPassword ? 'valid' : 'invalid'}`}>
+                        {formData.newPassword === formData.confirmPassword ? '✓' : '✕'}
+                      </span>
+                    )}
                   </div>
+                  {formData.confirmPassword && formData.newPassword !== formData.confirmPassword && (
+                    <p className="validation-message error">
+                      Passwords do not match
+                    </p>
+                  )}
                 </div>
 
-                <div className="flex space-x-3">
+                {/* Form Actions */}
+                <div className="change-password-actions">
                   <button
                     type="button"
                     onClick={() => {
                       setStep(1);
                       setFormData({ otp: '', newPassword: '', confirmPassword: '' });
+                      setError('');
                     }}
-                    className="flex-1 flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    className="btn btn-secondary"
                   >
                     Back
                   </button>
                   
                   <button
                     type="submit"
-                    disabled={isLoading}
-                    className="flex-1 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={isLoading || passwordStrength.score < 2 || formData.newPassword !== formData.confirmPassword}
+                    className="btn btn-primary"
                   >
                     {isLoading ? (
                       <>

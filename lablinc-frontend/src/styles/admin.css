@@ -440,9 +440,8 @@
 .detail-row.total-amount .amount-value {
   font-size: 1.75rem;
   font-weight: 800;
-  background: linear-gradient(135deg, var(--admin-primary) 0%, #7c3aed 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #000;
+}
   background-clip: text;
 }
 

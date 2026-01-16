@@ -2,13 +2,16 @@ const path = require('path');
 const fs = require('fs');
 const logger = require('./utils/logger');
 
-// Load environment variables FIRST
+// Load environment variables FIRST - check NODE_ENV to determine which file to load
 const productionEnvPath = path.join(__dirname, '../.env.production');
-if (fs.existsSync(productionEnvPath)) {
+const defaultEnvPath = path.join(__dirname, '../.env');
+
+// Only load production env if NODE_ENV is explicitly set to production
+if (process.env.NODE_ENV === 'production' && fs.existsSync(productionEnvPath)) {
   require('dotenv').config({ path: productionEnvPath });
   console.log('📋 Loaded production environment configuration from .env.production');
 } else {
-  require('dotenv').config();
+  require('dotenv').config({ path: defaultEnvPath });
   console.log('📋 Loaded development environment configuration from .env');
 }
 

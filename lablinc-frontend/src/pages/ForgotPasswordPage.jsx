@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { authAPI } from '../api/auth.api';
 import { useToast } from '../hooks/useToast';
+import './ForgotPasswordPage.css';
 
 const ForgotPasswordPage = () => {
   const { showToast } = useToast();
@@ -92,45 +93,44 @@ const ForgotPasswordPage = () => {
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-        <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-indigo-600 mb-2">LabLinc</h1>
+      <div className="forgot-password-page">
+        <div className="forgot-password-container">
+          <div className="forgot-password-header">
+            <h1 className="forgot-password-logo">LabLinc</h1>
           </div>
-        </div>
 
-        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-          <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-            <div className="text-center">
-              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
-                <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="forgot-password-card">
+            <div className="forgot-password-success">
+              <div className="forgot-password-success-icon">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Check Your Email</h3>
-              <p className="text-gray-600 mb-4">
-                If an account exists with the email <strong>{lastSubmittedEmail}</strong>, 
-                we've sent password reset instructions to your inbox.
+              
+              <h3 className="forgot-password-success-title">Check Your Email</h3>
+              
+              <p className="forgot-password-success-message">
+                We've sent password reset instructions to <strong>{lastSubmittedEmail}</strong>
               </p>
-              <div className="bg-blue-50 border border-blue-200 rounded-md p-4 mb-6">
-                <h4 className="text-sm font-medium text-blue-800 mb-2">What to do next:</h4>
-                <ul className="text-sm text-blue-700 space-y-1">
-                  <li>• Check your email inbox for reset instructions</li>
-                  <li>• Look in your spam/junk folder if you don't see it</li>
-                  <li>• The reset link will expire in 1 hour for security</li>
-                  <li>• Contact support if you continue having issues</li>
+              
+              <div className="forgot-password-info-box">
+                <h4 className="forgot-password-info-title">Next Steps:</h4>
+                <ul className="forgot-password-info-list">
+                  <li>Check your email inbox</li>
+                  <li>Look in spam/junk if needed</li>
+                  <li>Link expires in 1 hour</li>
                 </ul>
               </div>
               
-              <div className="space-y-3">
+              <div className="forgot-password-actions">
                 <button
                   onClick={handleResend}
                   disabled={cooldown > 0 || isLoading}
-                  className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="btn btn-secondary btn-block"
                 >
                   {isLoading ? (
                     <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600 mr-2"></div>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
                       Sending...
                     </>
                   ) : cooldown > 0 ? (
@@ -146,15 +146,12 @@ const ForgotPasswordPage = () => {
                     setFormData({ email: '' });
                     setCooldown(0);
                   }}
-                  className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  className="btn btn-ghost btn-block"
                 >
                   Try Different Email
                 </button>
                 
-                <Link
-                  to="/login"
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
+                <Link to="/login" className="btn btn-primary btn-block">
                   Back to Login
                 </Link>
               </div>
@@ -166,69 +163,54 @@ const ForgotPasswordPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-indigo-600 mb-2">LabLinc</h1>
-          <h2 className="text-2xl font-bold text-gray-900">Forgot Password</h2>
-          <p className="mt-2 text-sm text-gray-600">
-            No worries! Enter your email address below and we'll send you secure instructions to reset your password.
+    <div className="forgot-password-page">
+      <div className="forgot-password-container">
+        <div className="forgot-password-header">
+          <h1 className="forgot-password-logo">LabLinc</h1>
+          <h2 className="forgot-password-title">Forgot Password?</h2>
+          <p className="forgot-password-subtitle">
+            Enter your email address and we'll send you secure instructions to reset your password.
           </p>
-          <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
-            <p className="text-sm text-yellow-800">
-              <strong>Security Note:</strong> For your protection, we'll only send reset instructions to registered email addresses. 
-              The reset link will expire after 1 hour.
-            </p>
-          </div>
         </div>
-      </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+        <div className="forgot-password-card">
+          <form className="forgot-password-form" onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="email" className="input-label">
                 Email Address
               </label>
-              <div className="mt-1">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  placeholder="Enter your email address"
-                />
-              </div>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={formData.email}
+                onChange={handleChange}
+                className="input"
+                placeholder="Enter your email"
+              />
             </div>
 
-            <div>
-              <button
-                type="submit"
-                disabled={isLoading || cooldown > 0}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isLoading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Sending Instructions...
-                  </>
-                ) : cooldown > 0 ? (
-                  `Please wait ${cooldown}s`
-                ) : (
-                  'Send Reset Instructions'
-                )}
-              </button>
-            </div>
+            <button
+              type="submit"
+              disabled={isLoading || cooldown > 0}
+              className="btn btn-primary btn-block"
+            >
+              {isLoading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Sending...
+                </>
+              ) : cooldown > 0 ? (
+                `Wait ${cooldown}s`
+              ) : (
+                'Send Reset Link'
+              )}
+            </button>
 
-            <div className="text-center">
-              <Link
-                to="/login"
-                className="text-sm text-indigo-600 hover:text-indigo-500"
-              >
+            <div className="forgot-password-back-link">
+              <Link to="/login">
                 Back to Login
               </Link>
             </div>

@@ -231,87 +231,111 @@ const ProfilePage = () => {
                     <div className="info-item">
                       <label>Email Verification</label>
                       <div className="verification-status">
-                        <span className={`verification-badge ${profile?.emailVerified ? 'verified' : 'unverified'}`}>
-                          {profile?.emailVerified ? '✅ Verified' : '❌ Not Verified'}
-                        </span>
-                        {!profile?.emailVerified && (
-                          <div className="verification-actions">
-                            <button
-                              onClick={handleResendVerification}
-                              disabled={resendingVerification}
-                              className="btn btn-small btn-secondary"
-                            >
-                              {resendingVerification ? 'Sending...' : 'Resend Email'}
-                            </button>
-                            <span style={{ margin: '0 8px', color: '#6b7280' }}>or</span>
-                            <button
-                              onClick={handleSendOTPForVerification}
-                              disabled={otpLoading}
-                              className="btn btn-small btn-primary"
-                            >
-                              {otpLoading ? 'Sending...' : 'Verify with OTP'}
-                            </button>
-                          </div>
-                        )}
-                        
-                        {showOTPVerification && !profile?.emailVerified && (
-                          <div className="otp-verification-section" style={{ marginTop: '15px' }}>
-                            <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
-                              <div style={{ flex: 1 }}>
-                                <label style={{ fontSize: '14px', color: '#374151', marginBottom: '5px', display: 'block' }}>
-                                  Enter OTP sent to your email
-                                </label>
-                                <input
-                                  type="text"
-                                  placeholder="6-digit OTP"
-                                  value={emailOTP}
-                                  onChange={(e) => {
-                                    setEmailOTP(e.target.value.replace(/\D/g, '').slice(0, 6));
-                                    setOtpError('');
-                                  }}
-                                  maxLength={6}
-                                  style={{ 
-                                    width: '100%',
-                                    padding: '8px 12px',
-                                    border: '1px solid #d1d5db',
-                                    borderRadius: '6px',
-                                    textAlign: 'center',
-                                    letterSpacing: '2px',
-                                    fontSize: '16px'
-                                  }}
-                                />
-                              </div>
-                              <button
-                                onClick={handleVerifyEmailOTP}
-                                disabled={otpLoading || emailOTP.length !== 6}
-                                className="btn btn-small btn-primary"
-                              >
-                                {otpLoading ? 'Verifying...' : 'Verify'}
-                              </button>
+                        {profile?.emailVerified ? (
+                          <div className="verification-card verified-card">
+                            <div className="verification-icon verified-icon">
+                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
                             </div>
-                            {otpError && (
-                              <div style={{ color: '#ef4444', fontSize: '14px', marginTop: '5px' }}>
-                                {otpError}
+                            <div className="verification-content">
+                              <h4>Email Verified</h4>
+                              <p>Your email address has been verified</p>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="verification-card unverified-card">
+                            <div className="verification-icon unverified-icon">
+                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                              </svg>
+                            </div>
+                            <div className="verification-content">
+                              <h4>Email Not Verified</h4>
+                              <p>Please verify your email to access all features</p>
+                            </div>
+                            
+                            {!showOTPVerification && (
+                              <div className="verification-actions-card">
+                                <button
+                                  onClick={handleSendOTPForVerification}
+                                  disabled={otpLoading}
+                                  className="btn btn-primary btn-block"
+                                >
+                                  {otpLoading ? (
+                                    <>
+                                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                      Sending...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" style={{ marginRight: '8px' }}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                      </svg>
+                                      Verify with OTP
+                                    </>
+                                  )}
+                                </button>
+                                <button
+                                  onClick={handleResendVerification}
+                                  disabled={resendingVerification}
+                                  className="btn btn-secondary btn-block"
+                                >
+                                  {resendingVerification ? 'Sending...' : 'Send Verification Email'}
+                                </button>
                               </div>
                             )}
-                            <button
-                              onClick={() => {
-                                setShowOTPVerification(false);
-                                setEmailOTP('');
-                                setOtpError('');
-                              }}
-                              style={{ 
-                                background: 'none',
-                                border: 'none',
-                                color: '#6b7280',
-                                fontSize: '14px',
-                                marginTop: '10px',
-                                cursor: 'pointer',
-                                textDecoration: 'underline'
-                              }}
-                            >
-                              Cancel OTP verification
-                            </button>
+                            
+                            {showOTPVerification && (
+                              <div className="otp-verification-card">
+                                <div className="otp-input-group">
+                                  <label htmlFor="email-otp" className="otp-label">
+                                    Enter 6-digit code sent to your email
+                                  </label>
+                                  <input
+                                    id="email-otp"
+                                    type="text"
+                                    placeholder="000000"
+                                    value={emailOTP}
+                                    onChange={(e) => {
+                                      setEmailOTP(e.target.value.replace(/\D/g, '').slice(0, 6));
+                                      setOtpError('');
+                                    }}
+                                    maxLength={6}
+                                    className="otp-input-field"
+                                  />
+                                  {otpError && (
+                                    <p className="validation-message error">{otpError}</p>
+                                  )}
+                                </div>
+                                <div className="otp-actions">
+                                  <button
+                                    onClick={handleVerifyEmailOTP}
+                                    disabled={otpLoading || emailOTP.length !== 6}
+                                    className="btn btn-primary btn-block"
+                                  >
+                                    {otpLoading ? (
+                                      <>
+                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                        Verifying...
+                                      </>
+                                    ) : (
+                                      'Verify Email'
+                                    )}
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setShowOTPVerification(false);
+                                      setEmailOTP('');
+                                      setOtpError('');
+                                    }}
+                                    className="btn btn-ghost btn-block"
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>

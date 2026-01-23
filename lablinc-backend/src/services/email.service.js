@@ -5,6 +5,7 @@ const otpEmailTemplate = require('./email/templates/otpEmail');
 const emailVerificationOTPTemplate = require('./email/templates/emailVerificationOTP');
 const bookingConfirmationTemplate = require('./email/templates/bookingConfirmation');
 const invoiceEmailTemplate = require('./email/templates/invoiceEmail');
+const passwordChangeConfirmationTemplate = require('./email/templates/passwordChangeConfirmation');
 
 // Send verification email
 const sendVerificationEmail = async (user, token) => {
@@ -129,11 +130,40 @@ const sendInvoiceEmail = async (user, booking, invoicePath) => {
   return result;
 };
 
+// Send password change confirmation email
+const sendPasswordChangeConfirmation = async (user, timestamp, ipAddress) => {
+  console.log('📧 SENDING PASSWORD CHANGE CONFIRMATION', {
+    recipientEmail: user.email,
+    recipientName: user.name,
+    userId: user._id,
+    timestamp: timestamp,
+    ipAddress: ipAddress
+  });
+
+  const html = passwordChangeConfirmationTemplate(user.name, timestamp, ipAddress);
+  
+  try {
+    const result = await sesService.sendEmail(
+      user.email,
+      'Password Changed Successfully - LabLinc',
+      html
+    );
+
+    console.log('📨 PASSWORD CHANGE CONFIRMATION - SES MESSAGE ID:', result.MessageId);
+    return result;
+  } catch (error) {
+    console.error('Failed to send password change confirmation:', error);
+    // Don't throw error - this is a non-critical notification
+    return null;
+  }
+};
+
 module.exports = {
   sendVerificationEmail,
   sendPasswordResetEmail,
   sendPasswordChangeOTP,
   sendEmailVerificationOTP,
+  sendPasswordChangeConfirmation,
   sendBookingConfirmation,
   sendInvoiceEmail
 };

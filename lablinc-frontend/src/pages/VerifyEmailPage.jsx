@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { authAPI } from '../api/auth.api';
 import { useToast } from '../hooks/useToast';
-import MainLayout from '../components/layout/MainLayout';
-import './LoginPage.css';
+import './VerifyEmailPage.css';
 
 const VerifyEmailPage = () => {
   const [searchParams] = useSearchParams();
@@ -65,91 +64,90 @@ const VerifyEmailPage = () => {
   };
 
   return (
-    <MainLayout>
-      <div className="auth-page">
-        <div className="auth-container">
-          <div className="auth-header">
-            <h1>Email Verification</h1>
-            <p>Verifying your LabLinc account</p>
-          </div>
+    <div className="verify-email-page">
+      <div className="verify-email-container">
+        <div className="verify-email-header">
+          <h1 className="verify-email-logo">LabLinc</h1>
+          <h2 className="verify-email-title">Email Verification</h2>
+          <p className="verify-email-subtitle">Verifying your LabLinc account</p>
+        </div>
 
-          <div className="verification-content">
-            {status === 'loading' && (
-              <div className="verification-state loading-state">
-                <div className="verification-icon">
-                  <div className="loading-spinner large"></div>
-                </div>
-                <h3>Verifying your email...</h3>
-                <p>Please wait while we verify your email address.</p>
+        <div className="verify-email-card">
+          {status === 'loading' && (
+            <div className="verification-state loading-state">
+              <div className="verification-icon">
+                <div className="loading-spinner large"></div>
               </div>
-            )}
+              <h3>Verifying your email...</h3>
+              <p>Please wait while we verify your email address.</p>
+            </div>
+          )}
 
-            {status === 'success' && (
-              <div className="verification-state success-state">
-                <div className="verification-icon success-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <h3>Email Verified Successfully!</h3>
-                <p>{message}</p>
-                <div className="redirect-info">
-                  <p>Redirecting to login page in 5 seconds...</p>
-                </div>
-                <div className="verification-actions">
-                  <Link to="/login" className="btn btn-primary btn-block">
-                    Go to Login
-                  </Link>
-                </div>
+          {status === 'success' && (
+            <div className="verification-state success-state">
+              <div className="verification-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
               </div>
-            )}
+              <h3>Email Verified!</h3>
+              <p>{message}</p>
+              <div className="redirect-info">
+                <p>✨ Redirecting to login in 5 seconds...</p>
+              </div>
+              <div className="verification-actions">
+                <Link to="/login" className="btn btn-primary btn-block">
+                  Go to Login Now
+                </Link>
+              </div>
+            </div>
+          )}
 
-            {status === 'error' && (
-              <div className="verification-state error-state">
-                <div className="verification-icon error-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </div>
-                <h3>Verification Failed</h3>
-                <p>{message}</p>
+          {status === 'error' && (
+            <div className="verification-state error-state">
+              <div className="verification-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </div>
+              <h3>Verification Failed</h3>
+              <p>{message}</p>
+              
+              <div className="verification-actions">
+                <button
+                  onClick={handleResendVerification}
+                  disabled={isResending}
+                  className="btn btn-primary btn-block"
+                >
+                  {isResending ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Sending...
+                    </>
+                  ) : (
+                    'Resend Verification Email'
+                  )}
+                </button>
                 
-                <div className="verification-actions">
-                  <button
-                    onClick={handleResendVerification}
-                    disabled={isResending}
-                    className="btn btn-primary btn-block"
-                  >
-                    {isResending ? (
-                      <>
-                        <span className="loading-spinner"></span>
-                        Sending...
-                      </>
-                    ) : (
-                      'Resend Verification Email'
-                    )}
-                  </button>
-                  
-                  <Link to="/login" className="btn btn-secondary btn-block">
-                    Back to Login
-                  </Link>
-                </div>
+                <Link to="/login" className="btn btn-secondary btn-block">
+                  Back to Login
+                </Link>
               </div>
-            )}
-          </div>
+            </div>
+          )}
+        </div>
 
-          <div className="auth-benefits">
-            <h3>Why verify your email?</h3>
-            <ul>
-              <li>🔒 Secure your account</li>
-              <li>📧 Receive important notifications</li>
-              <li>🔬 Access all LabLinc features</li>
-              <li>📞 Get support when needed</li>
-            </ul>
-          </div>
+        <div className="verify-email-benefits">
+          <h3>Why verify your email?</h3>
+          <ul>
+            <li>🔒 Secure your account</li>
+            <li>📧 Get notifications</li>
+            <li>🔬 Access all features</li>
+            <li>💬 Receive support</li>
+          </ul>
         </div>
       </div>
-    </MainLayout>
+    </div>
   );
 };
 

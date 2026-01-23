@@ -6,6 +6,7 @@ const {
   getBooking,
   updateBookingStatus,
   downloadInvoice,
+  sendInvoiceEmail,
   cancelBooking,
   getUpcomingBookings,
   getBookingHistory,
@@ -49,6 +50,9 @@ router.patch('/:id/status', requireRole('institute', 'admin'), updateStatusValid
 
 // Download invoice
 router.get('/:id/invoice', downloadInvoice);
+
+// Send invoice via email
+router.post('/:id/send-invoice', sendInvoiceEmail);
 
 // Cancel booking
 router.patch('/:id/cancel', cancelBooking);

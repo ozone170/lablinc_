@@ -654,6 +654,16 @@ const changePasswordWithOTP = asyncHandler(async (req, res) => {
   user.refreshToken = undefined; // Invalidate existing sessions
   await user.save();
 
+  // Send password change confirmation email (non-blocking)
+  try {
+    const timestamp = new Date();
+    const ipAddress = req.ip || req.connection.remoteAddress || 'Unknown';
+    await emailService.sendPasswordChangeConfirmation(user, timestamp, ipAddress);
+  } catch (error) {
+    console.error('Failed to send password change confirmation email:', error);
+    // Don't fail the password change if email fails
+  }
+
   // Generate new tokens
   const accessToken = generateAccessToken(user._id);
   const refreshToken = generateRefreshToken(user._id);

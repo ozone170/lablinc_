@@ -5,6 +5,7 @@ const asyncHandler = require('../utils/asyncHandler');
 const { calculateDays, isDateRangeValid } = require('../utils/date.utils');
 const { generateInvoice, getInvoicePath } = require('../services/invoice.service');
 const { notifyBookingCreated, notifyBookingConfirmed, notifyBookingCancelled, notifyBookingCompleted } = require('../services/notification.service');
+const emailService = require('../services/email.service');
 const fs = require('fs');
 
 // @desc    Create booking
@@ -596,12 +597,71 @@ const getBookingTimeline = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc    Send invoice via email
+// @route   POST /api/bookings/:id/send-invoice
+// @access  Private
+const sendInvoiceEmail = asyncHandler(async (req, res) => {
+  const booking = await Booking.findById(req.params.id)
+    .populate('user', 'name email')
+    .populate('instrument', 'name');
+
+  if (!booking) {
+    const error = new Error('Booking not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  // Check if user has permission to send invoice
+  const isOwner = booking.user._id.toString() === req.user.id.toString();
+  const isInstrumentOwner = booking.instrument && booking.instrument.owner && booking.instrument.owner.toString() === req.user.id.toString();
+  const isAdmin = req.user.role === 'admin';
+
+  if (!isOwner && !isInstrumentOwner && !isAdmin) {
+    const error = new Error('Not authorized to send invoice for this booking');
+    error.statusCode = 403;
+    throw error;
+  }
+
+  // Generate invoice if it doesn't exist
+  let invoicePath;
+  if (!booking.invoiceId || !fs.existsSync(getInvoicePath(booking.invoiceId))) {
+    console.log('Generating invoice for email:', booking._id);
+    const { invoiceId } = await generateInvoice(booking, booking.user, booking.instrument);
+    booking.invoiceId = invoiceId;
+    await booking.save();
+  }
+
+  invoicePath = getInvoicePath(booking.invoiceId);
+
+  if (!fs.existsSync(invoicePath)) {
+    const error = new Error('Invoice file could not be generated');
+    error.statusCode = 500;
+    throw error;
+  }
+
+  try {
+    // Send invoice email with PDF attachment
+    await emailService.sendInvoiceEmail(booking.user, booking, invoicePath);
+
+    res.json({
+      success: true,
+      message: 'Invoice sent successfully to your email'
+    });
+  } catch (error) {
+    console.error('Failed to send invoice email:', error);
+    const err = new Error('Failed to send invoice email. Please try again later.');
+    err.statusCode = 500;
+    throw err;
+  }
+});
+
 module.exports = {
   createBooking,
   getMyBookings,
   getBooking,
   updateBookingStatus,
   downloadInvoice,
+  sendInvoiceEmail,
   cancelBooking,
   getUpcomingBookings,
   getBookingHistory,

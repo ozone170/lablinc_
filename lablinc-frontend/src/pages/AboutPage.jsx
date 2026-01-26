@@ -3,9 +3,9 @@ import './AboutPage.css';
 
 const AboutPage = () => {
   const team = [
-    { name: 'Niranjan Desai', role: 'Operations' },
-    { name: 'Narendra Hannurkar', role: 'Operations' },
-    { name: 'Aditya Shinde', role: 'Technical' }
+    { name: 'Niranjan Desai', role: 'CEO' },
+    { name: 'Aditya Sindhe', role: 'CTO' },
+    { name: 'Narendra Hannurkar', role: 'CMO' }
   ];
 
   return (
